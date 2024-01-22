@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Persistence Unit Definition for PictureDatabase Juli/Aug 2023
+Bisher 2 persistence units definiert:
+PIC_TEST: geht auf mariadb database PIC_TEST, fuer automatisierten JUnit 5 Test
+PIC_TEST_IN_MEMORY: geht auf H2 in Memory database
+PIC_DEV: geplant f. mariadb, PIC_DEV
+PIC_PROD: geplant f. mariadb, PIC_DEV
+-->
+<persistence version="2.2" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence           http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+  <persistence-unit name="PIC_TEST">
+    <description>Picture Database Test-Environment using th mariadb database</description>
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <class>picdata.Camera</class>
+    <class>picdata.DigiPicture</class>
+    <class>picdata.MediumType</class>
+    <class>picdata.PicDirectory</class>
+    <class>picdata.PictureMedium</class>
+    <class>picdata.PictureResolutions</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.MariaDBDialect"/>
+      <property name="hibernate.hbm2ddl.auto" value="update"/>
+      <property name="javax.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/PIC_TEST"/>
+      <property name="javax.persistence.jdbc.user" value="rene"/>
+      <property name="javax.persistence.jdbc.password" value=""/>
+      <property name="hibernate.show_sql" value="false"/>
+      <property name="rzi.truncate.sql" value="TRUNCATE TABLE %s;"/>
+      <property name="rzi.ignoreForeignKeys.sql" value="SET FOREIGN_KEY_CHECKS = 0;"/>
+    </properties>
+  </persistence-unit>
+  <persistence-unit name="PIC_TEST_IN_MEMORY">
+    <description>Picture Database Test-Environment using the in memory database H2</description>
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <class>picdata.Camera</class>
+    <class>picdata.DigiPicture</class>
+    <class>picdata.MediumType</class>
+    <class>picdata.PicDirectory</class>
+    <class>picdata.PictureMedium</class>
+    <class>picdata.PictureResolutions</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+      <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1"/>
+      <property name="javax.persistence.jdbc.user" value="sa"/>
+      <property name="javax.persistence.jdbc.password" value="sa"/>
+      <property name="rzi.truncate.sql" value="ALTER TABLE %s ALTER COLUMN ID RESTART WITH 1;"/>
+      <property name="rzi.ignoreForeignKeys.sql" value="SET REFERENTIAL_INTEGRITY False;"/>
+      <property name="rzi.test" value="Renes test"/>
+    </properties>
+  </persistence-unit>
+</persistence>

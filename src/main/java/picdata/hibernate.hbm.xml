@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+Copyright (c) 2008, 2016 Oracle and/or its affiliates. All rights reserved.
+
+Oracle and Java are registered trademarks of Oracle and/or its affiliates.
+Other names may be trademarks of their respective owners.
+
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://www.netbeans.org/cddl-gplv2.html
+or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License file at
+nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
+particular file as subject to the "Classpath" exception as provided
+by Oracle in the GPL Version 2 section of the License file that
+accompanied this code. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+
+Contributor(s):
+-->
+<hibernate-mapping>
+    <!--class name="picdata.Camera" table="CAMERA">
+        <id name="id" type="int">
+            <column name="ID"/>
+            <generator class="native"/>
+        </id>
+        <version name="version" column="VERSION" />
+        <property name="remark" type="string">
+            <column name="REMARK" not-null="false"/>
+        </property>
+        <property name="model" type="string">
+            <column name="MODEL" not-null="false"/>
+        </property>
+        <property name="hersteller" type="string">
+            <column name="MANUFACTURER" not-null="false"/>
+        </property>
+    </class-->
+    <!-- class name="picdata.Media" table="MEDIA">
+        <id name="id" type="int">
+            <column name="ID"/>
+            <generator class="native"/>
+        </id>
+        <version name="version" column="VERSION" />
+        <property name="remark" type="string">
+            <column name="REMARK" not-null="false"/>
+        </property>
+        <property name="depiction" type="string">
+            <column name="DEPICTION" not-null="false"/>
+        </property>
+        <property name="capacity" type="int">
+            <column name="CAPACITY"/>
+        </property>
+    </class -->
+    <!-- class name="picdata.PictureMedium" table="PICTURE_MEDIUM">
+        <id name="id" type="int">
+            <column name="ID"/>
+            <generator class="native"/>
+        </id>
+        <version name="version" column="VERSION" />
+        <property name="remark" type="string">
+            <column name="REMARK" not-null="false"/>
+        </property>
+        <many-to-one name="storageMedium" 
+                     column="STORAGE_MEDIUM" class="picdata.Media" not-null="false" />
+        <property name="code" type="int">
+            <column name="CODE" not-null="false"/>
+        </property>
+        <property name="label" type="string">
+            <column name="LABEL" not-null="false" />
+        </property>
+        <property name="title" type="string">
+            <column name="TITLE" not-null="true" />
+        </property>
+        <property name="content" type="string">
+            <column name="CONTENT" not-null="false" />
+        </property>
+        <property name="dateWritten" type="date">
+            <column name="DATE_WRITTEN" not-null="false" />
+        </property>
+        <property name="writtenBy" type="string">
+            <column name="WRITTEN_BY" not-null="false" />
+        </property>
+    </class>
+    <class name="picdata.DigiPicture" table="DIGI_PICTURE">
+        <id name="id" type="int">
+            <column name="ID"/>
+            <generator class="native"/>
+        </id>
+        <version name="version" column="VERSION" />
+        <many-to-one name="camera" cascade="none"
+                     column="CAMERA" class="picdata.Camera" not-null="false" />
+        <set name="dirMap" inverse="true" cascade="all">
+            <key column="DIGI_PICTURE_ID" not-null="false"/>
+            <one-to-many class="picdata.PicDirMap"/>
+        </set>
+        <property name="remark" type="string">
+            <column name="REMARK" not-null="false"/>
+        </property>
+        <property name="fileName" type="string">
+            <column name="FILE_NAME" not-null="false"/>
+        </property>
+        <property name="pictureTakenDate" type="date">
+            <column name="PICTURE_TAKEN_DATE" not-null="false"/>
+        </property>
+        <property name="width" type="int">
+            <column name="WIDTH" not-null="false"/>
+        </property>
+        <property name="height" type="int">
+            <column name="HEIGHT" not-null="false"/>
+        </property>
+        <property name="thumbFormat" type="string">
+            <column name="THUMB_FORMAT" not-null="false"/>
+        </property>
+        <property name="thumb" type="blob">
+            <column name="THUMB" not-null="false"/>
+        </property>
+    </class>
+    <class name="picdata.PicDirectory" table="PIC_DIRECTORY">
+        <id name="id" type="int">
+            <column name="ID"/>
+            <generator class="native"/>
+        </id>
+        <version name="version" column="VERSION" />
+        <property name="remark" type="string">
+            <column name="REMARK" not-null="false"/>
+        </property>
+        <property name="description" type="string">
+            <column name="DESCRIPTION" not-null="false"/>
+        </property>
+        <property name="directoryName" type="string">
+            <column name="DIRECTORY_NAME" not-null="false"/>
+        </property>
+        <many-to-one name="parent" cascade="none"
+                     column="PARENT" class="picdata.PicDirectory" not-null="false" />
+        <many-to-one name="medium" cascade="none"
+                     column="MEDIUM" class="picdata.PictureMedium" not-null="false" />
+    </class>
+    <class name="picdata.PicDirMap" table="PIC_DIR_MAP">
+        <id name="id" column="ID">
+            <generator class="native"/>
+        </id>
+        <version name="version" column="VERSION" />
+        <many-to-one name="picture" class="picdata.DigiPicture">
+            <column name="DIGI_PICTURE_ID" />
+        </many-to-one> 
+    </class -->
+</hibernate-mapping>
