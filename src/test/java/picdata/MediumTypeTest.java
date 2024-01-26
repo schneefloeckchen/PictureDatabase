@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class MediumTypeTest extends TestBase {
   SQLUtil sqlUtil = new SQLUtil();
-  PicJPAUtil jpaUtil = PicJPAUtil.getInstance();
   
   public MediumTypeTest() {
   }

@@ -13,7 +13,6 @@ import static bas.TestBase.TEST_DATA_FOLDER;
 import hib.PicJPAUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import jakarta.transaction.Transactional;
 import java.io.File;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -25,7 +24,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
- * Testprocess mit jUnit5 Framework, die domain tests sind noch jUnit4.
+ * Testprocess mit jUnit5 Framework
  * Von NB 12.4 generierter Test.
  *
  * @author rene

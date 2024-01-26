@@ -20,10 +20,46 @@
         <p>Mit git, local, auf lokaler archivplatte und in github.</p>
         <p>Sie auch BertaLogBuch zum git-setup.</p>
         <ol>
-            <li>git init f. lokales repo, sete branch namen auf development.</li>
-            <li>second</li>
-            <li>third</li>
+            <li>In Konsole: git init f. lokales repo, setze branch namen auf development.</li>
+            <li>in NB: commit</li>
+            <li>auf ..speicher/scw/git/PictureDatabase mit init ein remote repo erzeugt</li>
+            <li>Im Dev Verzeichnis mit git remote add berta /home/rene/speicher/.. das neue repo als berta angebunden</li>
+            <li>git push berta development, den stand ins repo gepushed. Daten dort im unsichtbaren Verzeichnis .git</li>
 
+        </ol>
+        
+        <h1>Logbuch</h1>
+        <p>Dokumentation der Schritte, das Original, aus dem kopiert wird, ist in JavaNB018/PictureDatabaseV2, bisher sind
+            die OR-Mapper sowie das import-tool (pictures.tools.MediumLoadProzessor) mit junit5 Tests getestet.(</p>
+        <h2>Migrate MaintainPictureMediumUI</h2>
+        <p>pictures.ui.MaintainPictureMediumUI aus dem Quellprojekt kopiert. Es fehlen:</p>
+        <ol>
+            <li>pictures.ui.popups.MediumLoadStatisticsDisplay - fehlende</li>
+            <li>pictures.ui.elements.StorageMediaTableModel</li>
+            <li>rzx.ui.CDVDHelper</li>
+            <li>rzx.ui.ZxButtonPanel</li>
+            <li>rzx.ui.ZxComboBox</li>
+            <li>rzx.ui.ZxDateField</li>
+            <li>rzx.ui.ZxErrorDialog</li>
+            <li>rzx.ui.ZxGridBagPanel</li>
+            <li>rzx.ui.ZxMessageDialog</li>
+            <li>rzx.ui.ZxTextField</li>
+            <li>rzx.ui.ZxTextField</li>
+            <li>rzx.ui.ZxUIHelper</li>
+            <li>rzx.ui.ZxPanel</li>
+            <li>rzx.ui.ZxTable</li>
+        </ol>
+        
+        <p>Jetzt fehlen</p>
+        <ol>
+            <li>pictures.ui.BaseDialogUI</li>
+            <li>rzx.ui.ZxGenericTableDialog</li>
+            <li>rzx.ui.ZxTextArea</li>
+            <li>rzx.ui.ZxUIElementFactory</li>
+            <li>rzx.ui.ZxComboBoxModel</li>
+            <li>rzx.ui.ZxUIComponent</li>
+            <li>rzx.ui.ZxLabel</li>
+            <li>rzx.ui.ZxCheckBox</li>
         </ol>
 
         

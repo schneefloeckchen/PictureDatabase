@@ -1,0 +1,38 @@
+Notes etc. zur Entwicklung, speziell Fehlersuche die nix im Code zu suchen hat.
+Regulaere Log-Information im Quellcode, pictures\PicturesDatabase.java
+
+June 23: Uncompilable Code.
+(1) Aktualisieren der bibliotheken. Sind:
+   -- EXIF
+   -- MariaDB, Treiber. mariadb-java-client-2.5.3.jar. Vpn https://mariadb.com/downloads/connectors/ das jar in Version 3.1.4 geladen und in die library gepackt. Fehlermeldung: Treiber benötigt waffle.jna, lade jar runter, füge es in der MariaDB library hinzu, ergänze requires waffle.jna meldet Fehler nicht mehr. Jetzt kann er den Service nicht bilden.
+   -- hibernate-5.4.21, neue Version ist 6.2 . to upgrade.
+   -- ApacheCommonImaging_1.0
+   
+Juli 23: Uncompilable Code weiter.
+Die hibernate und treiber jars scheinenzu alt sein, die class files haben unterschiedliche Versionen, so dass sie nicht von einer VM ausgeführt werden können. Update der hibernate jars klappt nicht so ohne weiteres, da nicht mehr daownloadbar - max aus maven-central herausklauben.
+Fazit: muss von ant als build-tool to maven wechseln.
+Eckdaten für die operation:
+Netbeans 18
+jdk 17  (oder will ich das erhöhen??)
+
+Versuch 1: Neues Projekt anlegen und files reinkopieren
+PicturesDatabaseV2 neu angelegt als Maven-Projekt, per drag und drop die quell-files hinübergeschoben.
+Test Verzeichnis nicht angelegt, einen dummy test für hib-util erzeugt, jetzt ist der Test-folder da.
+jave auf 17 gestellt, kompiliert jetzt, meldet fehlende Module.
+Er meldet:
+net.bytebuddy -> V 1.14.5, artefact ID byte-buddy in POM
+com.fasterxml.classmate -> in 1.5.1
+dom4j -> aus maven-central
+org.hibernate.commons.annotations -> Hibernate commons-annotation
+org.hibernate.orm.core -> hibernate-core
+com.sun.istack.runtime - istack-commons-runtime in V4.2.0
+javassist -> javassist in V3.12.1.GA
+java.persistence -> javax.persistence
+java.xml.bind -> jaxb-api, version 2.4.0-b1...
+com.sun.xml.bind -> jaxb-osgi in V 4.0.3
+org.jboss.logging -> jboss-logging
+java.transaction -> javax.transaction-api.
+com.sun.xml.txw2 -> txw2 aus 2011
+metadata.extractor -> 2.18.0
+xmpcore -> com.adobe.xmp v 6.1.11
+org.mariadb.jdbc -> mariadb-java-client in V 2.7.2

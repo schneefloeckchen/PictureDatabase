@@ -24,8 +24,8 @@ public class TestBase {
 //    PicHibernateUtil.getInstance().loadConfiguration("TEST");
 //    PicJPAUtil.getInstance().configure("PIC_TEST");
 //  System.out.println("Creating database connection for SQL access");
-    PicJPAUtil.getInstance().configure("PIC_TEST_IN_MEMORY");
-//    PicJPAUtil.getInstance().configure("PIC_TEST");
+//    PicJPAUtil.getInstance().configure("PIC_TEST_IN_MEMORY");
+    PicJPAUtil.getInstance().configure("PIC_TEST");
   }
 
   protected static void cleanDatabase() {

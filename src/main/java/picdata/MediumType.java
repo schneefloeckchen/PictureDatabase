@@ -94,7 +94,7 @@ public class MediumType extends PicDataBaseClass implements PicCatalogItem {
 //    Session session = PicHibernateUtil.getSessionFactory().openSession();
 //    session.beginTransaction();
     EntityManager em = PicJPAUtil.getInstance().createEntityManager();
-    Query q = em.createNativeQuery("select media.id, media.depiction from MediumType as media");
+    Query q = em.createNativeQuery("select media.ID, media.DEPICTION from MEDIUM_TYPE as media");
     List<Object[]> result = q.getResultList();
     List<ZxComboBoxEntry> mediaTypes = new ArrayList();
     result.forEach((Object[] line) -> {
