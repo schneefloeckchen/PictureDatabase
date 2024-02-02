@@ -72,7 +72,10 @@ public class PictureMedium extends PicDataBaseClass {
 //    try ( Session session = PicHibernateUtil.getSessionFactory().openSession()) {
 //      storageMedium = (MediumType) session.load(MediumType.class, id);
 //    }
-    throw new UnsupportedOperationException();
+//    throw new UnsupportedOperationException();
+    try (EntityManager em = PicJPAUtil.getInstance().createEntityManager()) {
+        storageMedium = em.find(MediumType.class, id);
+    }
   }
 
   public int getCode() {

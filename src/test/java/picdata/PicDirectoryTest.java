@@ -48,7 +48,7 @@ public class PicDirectoryTest extends TestBaseClass {
     log("Testing adding pictures using transactions and the regular JPA methods");
     MediumType mt = new MediumType();
     mt.setDepiction("TEST TYPE");
-    try (EntityManager em = pju.createEntityManager()) {
+    try (EntityManager em = m_picJPAUtil.createEntityManager()) {
       em.getTransaction().begin();
       em.persist(mt);
       em.getTransaction().commit();
@@ -56,7 +56,7 @@ public class PicDirectoryTest extends TestBaseClass {
     PictureMedium picMedium = new PictureMedium();
     picMedium.setStorageMedium(mt);
     picMedium.setLabel("TEST LABEL");
-    try (EntityManager em = pju.createEntityManager()) {
+    try (EntityManager em = m_picJPAUtil.createEntityManager()) {
       em.getTransaction().begin();
       em.persist(picMedium);
       em.getTransaction().commit();
@@ -71,7 +71,7 @@ public class PicDirectoryTest extends TestBaseClass {
     pic1.setFileName("TestBild.jpeg");
     pic1.setCamera(m_camera1);
     pic1.setPictureTakenMilis(10000);
-    try (EntityManager em = pju.createEntityManager()) {
+    try (EntityManager em = m_picJPAUtil.createEntityManager()) {
       em.getTransaction().begin();
       em.persist(pic1);
       picDirectory.addPicture(pic1);

@@ -20,24 +20,28 @@ import java.util.logging.Logger;
  * @todo Add SearchPicturesWithNameAndMilis - result as List to hunt for
  * duplicates
  *
- * AUg 2023 - migrate to JPA 2.2, Hibernate Implementation, JDK 18, and from
+ * Aug 2023 - migrate to JPA 2.2, Hibernate Implementation, JDK 18, and from
  * Session to EntityManager
+ * Feb 24, continue migration and create test files. Cleanup the whole class.
  */
 public class Searcher {
+
   private Logger m_logger = Logger.getLogger(getClass().getName());
 
 //  Session m_session = null;
   private Query m_cameraFindByModelAndManufacturerQuery = null;
   private EntityManager m_entityManager = null;
+  private PicJPAUtil m_jpaUtil = PicJPAUtil.getInstance();
 
   public Searcher() {
 //    m_session = PicHibernateUtil.getSession();
+    m_entityManager = m_jpaUtil.createEntityManager();
   }
 
   public void setEntityManager(EntityManager em) {
     m_entityManager = em;
     m_cameraFindByModelAndManufacturerQuery = m_entityManager.createNamedQuery(
-        "Camera_findByModelAndManufacturer", Camera.class);
+            "Camera_findByModelAndManufacturer", Camera.class);
   }
 
   /**
@@ -48,8 +52,9 @@ public class Searcher {
    * @return first hit, or null is nothing was found.
    */
   public Camera searchCameraByModelAndManufacturer(String model, String manufacturer) {
-    if (m_entityManager == null)
+    if (m_entityManager == null) {
       setEntityManager(PicJPAUtil.getInstance().createEntityManager());
+    }
     m_cameraFindByModelAndManufacturerQuery.setParameter("modelName", model);
     m_cameraFindByModelAndManufacturerQuery.setParameter("manufacturerName", manufacturer);
     try {
@@ -59,8 +64,8 @@ public class Searcher {
       return null;
     } catch (NonUniqueResultException ex) {
       m_logger.log(Level.SEVERE,
-          "Multiple Entries found for {0} / {1}", new Object[]{model, manufacturer});
-      List<Camera>cameras = m_cameraFindByModelAndManufacturerQuery.getResultList();
+              "Multiple Entries found for {0} / {1}", new Object[]{model, manufacturer});
+      List<Camera> cameras = m_cameraFindByModelAndManufacturerQuery.getResultList();
       return cameras.getFirst();
     }
   }
@@ -78,12 +83,13 @@ public class Searcher {
    */
   public DigiPicture searchPictureByNameAndMilis(String name, long date) {
     String name2 = name.replace("'", "");      // if a ' is in the file name
-    if (m_entityManager == null)
+    if (m_entityManager == null) {
       m_entityManager = PicJPAUtil.getInstance().createEntityManager();
+    }
 //    Query query = em.createNativeQuery(
 //        "from DIGI_PICTURE where FILE_NAME='" + name2 + "' and PICTURE_MILIS=" + date)
     Query query = m_entityManager.createQuery("Select p from DigiPicture p where p.fileName='" + name2
-        + "' and p.pictureTakenMilis=" + date);
+            + "' and p.pictureTakenMilis=" + date);
     try {
       DigiPicture pic = (DigiPicture) query.getSingleResult();
       return pic;
@@ -114,43 +120,43 @@ public class Searcher {
       return null;
     }
   }*/
-
- /*public List<PictureMedium> searchPictureMediumsByTitle(String title) {
+  public List<PictureMedium> searchPictureMediumsByTitle(String title) {
     String queryString
-        = "from PictureMedium m where m.title like \"" + title + "\"";
+            = "from PictureMedium m where m.title like \"" + title + "\"";
     return searchPictureMediums(queryString);
-  }*/
+  }
 
- /* public List<PictureMedium> searchPictureMediumsByLabel(String label) {
+  public List<PictureMedium> searchPictureMediumsByLabel(String label) {
     String queryString
-        = "from PictureMedium m where m.label like \"" + label + "\"";
+            = "from PictureMedium m where m.label like \"" + label + "\"";
     return searchPictureMediums(queryString);
-  } */
+  }
 
- /*public List<PictureMedium> searchPictureMediumsByContent(String content) {
+  public List<PictureMedium> searchPictureMediumsByContent(String content) {
     String queryString
-        = "from PictureMedium m where m.content like \"" + content + "\"";
+            = "from PictureMedium m where m.content like \"" + content + "\"";
     return searchPictureMediums(queryString);
-  }*/
+  }
 
- /* private List<PictureMedium> searchPictureMediums(String queryString) {
-    Query query = m_session.createQuery(queryString);
+  private List<PictureMedium> searchPictureMediums(String queryString) {
+    Query query = m_entityManager.createQuery(queryString);
     try {
 //          List<PictureMedium> result = 
       return query.getResultList();
     } catch (NoResultException ex) {
       return null;
     }
-  }*/
+  }
 
- /*public List<PicDirectory> searchPictureDirectory(String name) {
+  public List<PicDirectory> searchPictureDirectory(String name) {
     String queryString
-        = "from PicDirectory p where p.directoryName like \"" + name + "\"";
-    Query query = m_session.createQuery(queryString);
+            = "from PicDirectory p where p.directoryName like \"" + name + "\"";
+    Query query = m_entityManager.createQuery(queryString);
+//    Query query = m_session.createQuery(queryString);
     try {
       return query.getResultList();
     } catch (NoResultException ex) {
       return null;
     }
-  }*/
+  }
 }

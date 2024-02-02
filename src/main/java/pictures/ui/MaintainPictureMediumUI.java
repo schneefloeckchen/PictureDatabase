@@ -16,6 +16,7 @@ import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,8 +59,8 @@ import rzx.ui.ZxTable;
 public class MaintainPictureMediumUI extends BaseDialogUI implements MouseListener {
 
     /**
-     * die static Strings sind fuer die Tests vorgesehen. Vergabe dieser Name und
-     * belegen der Felder mit diesen Namen.
+     * die static Strings sind fuer die Tests vorgesehen. Vergabe dieser Name
+     * und belegen der Felder mit diesen Namen.
      */
     public static final String CODE_TEXT_FIELD = "CODE";
     private ZxPanel mu_dialogPanel = null;       // for all the textfields
@@ -92,8 +93,9 @@ public class MaintainPictureMediumUI extends BaseDialogUI implements MouseListen
     private PictureMedium m_selectedMedium = null;
 
 // Storage for tests
-    private Map<String, ZxTextField> m_unitTextFieldMap = new HashMap<>();
-    
+    private ArrayList<ZxTextField> mu_textFieldList = null;
+    private ArrayList<JButton> mu_buttonList = null;
+
     public MaintainPictureMediumUI() {
         jInit();
     }
@@ -128,10 +130,10 @@ public class MaintainPictureMediumUI extends BaseDialogUI implements MouseListen
         mu_dialogFieldPanel.newLine();
         mu_remarkTextField = mu_dialogFieldPanel.createAndAddLabelAndField("remark", 100, 11);
         mu_dialogPanel.add(mu_dialogFieldPanel, BorderLayout.CENTER);
-        
+
 // Namen fuer die Tests
         mu_codeTextField.setName(CODE_TEXT_FIELD);
-        
+
         ZxButtonPanel dialogButtonPanel = new ZxButtonPanel();
         dialogButtonPanel.configureResource("mediaMaintain");
         mu_loadMediumButton = dialogButtonPanel.createAndAddButton("loadMedium");
@@ -183,7 +185,8 @@ public class MaintainPictureMediumUI extends BaseDialogUI implements MouseListen
             loadMediumObject(m_selectedMedium);
             try (EntityManager em = PicJPAUtil.getInstance().createEntityManager()) {
                 em.getTransaction().begin();
-                em.persist(m_selectedMedium);
+                PictureMedium m = em.merge(m_selectedMedium);
+                em.persist(m);
                 em.getTransaction().commit();
             }
             m_medium = m_selectedMedium;
@@ -253,6 +256,8 @@ public class MaintainPictureMediumUI extends BaseDialogUI implements MouseListen
 
     /**
      * auskommentiert waerend test sessions
+     *
+     * @todo !!! reactivate !!!
      */
     private void performDisplayMediumFunction() {
 //      System.out.println("Display Medium");
@@ -284,6 +289,13 @@ public class MaintainPictureMediumUI extends BaseDialogUI implements MouseListen
 //        session.refresh(m_selectedMedium);
 //        session.close();
         m_medium = m_selectedMedium;
+        storeSelectedMedium();
+    }
+
+    /**
+     * writes the data from the selected medium into the ui
+     */
+    private void storeSelectedMedium() {
         mu_idTextField.setValue(m_selectedMedium.getId());
         mu_codeTextField.setValue(m_selectedMedium.getCode());
         mu_mediaComboBox.setSelectionByKey(m_selectedMedium.getStorageMedium().getId());
@@ -293,22 +305,76 @@ public class MaintainPictureMediumUI extends BaseDialogUI implements MouseListen
         mu_contentTextField.setText(m_selectedMedium.getContent());
         mu_remarkTextField.setText(m_selectedMedium.getRemark());
     }
-    
+
     /**
-     * Methods to execute JUnit5 Tests. 
-     * @param name name of the ui-Element
-     * @param value value for the ui Element
+     * Method for junit testing, or further testing frameworks. Returns an
+     * ArrayList with some (testing relevant) UI-Elements in a ArrayList.
+     * Current implementation:
+     * 0 -> mu_codeTextField (to enter the code of the
+     * dvd/CD)
+     * 1 -> mu_labelTextField (Label as written in the home/mount Block
+     * of the DVD)
+     * 2 -> mu-IDteXTfIELD (GENERATED ID OF THE NEW ENTRY)
+     * The arraylist is build during the first call of this method.
+     *
+     * @return
+     */
+    public ArrayList<ZxTextField> getTextFields() {
+        if (mu_textFieldList == null) {
+            mu_textFieldList = new ArrayList<>();
+            mu_textFieldList.add(mu_codeTextField);   // 0
+            mu_textFieldList.add(mu_labelTextField);  // 1
+            mu_textFieldList.add(mu_idTextField);     // 2
+        }
+        return mu_textFieldList;
+    }
+
+    /**
+     * like getTextFields, but for the JButtons in the UI Current
+     * implementation:
+     * 0 -> mu_newButton (create a new entry in the database)
+     * 1 -> mu_saveButton (saves the loaded entry);
+     * 2 -> mu_clearButton (clear the ui)
+     *
+     * @return
+     */
+    public ArrayList<JButton> getButtons() {
+        if (mu_buttonList == null) {
+            mu_buttonList = new ArrayList<>();
+            mu_buttonList.add(mu_newButton);      // 0
+            mu_buttonList.add(mu_saveButton);     // 1
+            mu_buttonList.add(mu_clearButton);    // 2
+        }
+        return mu_buttonList;
+    }
+
+    public void setSelectedMedium(PictureMedium medium) {
+        m_selectedMedium = medium;
+        m_medium = medium;
+        storeSelectedMedium();
+    }
+
+    /**
+     * kopiert (die Referenz) des zuletzt erzeugten/gespeicherten
+     * Mediums auf das m_selectedMedium. Das wird beim regulaeren
+     * Betrieb durch die selection in der Tabelle gemacht.
+     */
+    public void updateSelectedMedium() {
+        m_selectedMedium = m_medium;
+    }
+
+    /**
+     * Returns the id of the latest created or updated medium. The id of
+     * the current m_medium object
+     */
+    public long getLastId() {
+        return m_medium.getId();
+    }
+
+    /*
+ * Ende der Methoden, die nur zum junit Testen gedacht sind 
      */
 
-    public void setTextFieldValue(String name, String value) {
-        ZxTextField textField = m_unitTextFieldMap.get(name);
-        textField.setText(value);
-    }
-
-    private void addTextFieldName(ZxTextField textField, String name) {
-        textField.setName(name);
-        m_unitTextFieldMap.put(name, textField);
-    }
     // Implementation of the ActionListener interface
     @Override
     public void actionPerformed(ActionEvent ae) {
