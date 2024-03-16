@@ -4,7 +4,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.Query;
+import java.sql.Connection;
 import java.util.Map;
+import org.hibernate.Session;
 
 /**
  * Singelton to connect with the database and provide EntityManagerFactory and
@@ -97,6 +99,21 @@ public class PicJPAUtil {
     return m_entityManagerFactory;
   }
 
+  /**
+   * returns the connection used by the EntityManagerFactory
+   * @return 
+   */
+  public Connection getConnection() {
+    
+    EntityManager em = createEntityManager();
+    Query query = em.createQuery ("Select count(*) from Camera");
+    long result = (Long)query.getSingleResult();
+    System.out.println("Anzahl Cameras in getConnection " + result);
+    // Session session = em.unwrap(Session.class);
+    Connection conn = em.unwrap(java.sql.Connection.class);
+    return conn;
+  }
+  
   /**
    * returns a new EntityManager
    *

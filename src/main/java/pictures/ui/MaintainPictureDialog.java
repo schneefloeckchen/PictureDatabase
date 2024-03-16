@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
@@ -40,7 +41,7 @@ import rzx.ui.ZxTreeTableDataModel;
  * NORTH: Search and storage medium data
  * WEST: Tree Table w. filestructure of the storage medium. A fixed size is
  * defined, to ensure that the picture in CENTER can be seen all the time.
- * CENTER: Picture, BorderLayout aloows it not to define a size for this part. 
+ * CENTER: Picture, BorderLayout aloows it not to define a size for this part.
  * EAST: The EXIF Data in a DialogTable
  * SOUTH: Buttons
  *
@@ -72,7 +73,7 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
 
   // Elements of the SOUTH Panel (Buttons) 
   private final ZxUIElementFactory m_buttonFactory
-      = ZxUIElementFactory.getInstance();
+          = ZxUIElementFactory.getInstance();
   private JButton mb_findStorageMediumButton = null;
   private JButton mb_nextButton = null;
   private JButton mb_previousButton = null;
@@ -88,6 +89,9 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
 
   private int m_currentTableRow = -1;                 // from picture table, for next and previous
   private DigiPicture m_currentPicture = null;
+
+  // Elements for JUnit testing
+  private ArrayList<JButton> mu_buttons = null;
 
   public MaintainPictureDialog() {
     jInit();
@@ -160,7 +164,7 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
     mu_displayPicturePanel.setMinimumSize(pictureSize);
 
     ZxScrollPane picturePanel = new ZxScrollPane(
-        "pictureMaintain", "thumbnailPanel", mu_displayPicturePanel);
+            "pictureMaintain", "thumbnailPanel", mu_displayPicturePanel);
     picturePanel.setMinimumSize(pictureSize);
     picturePanel.setPreferredSize(pictureSize);
     picturePanel.setSize(pictureSize);
@@ -181,7 +185,7 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
     mb_previousButton = buttonPanel.createAndAddButton("previous");
     mb_nextButton = buttonPanel.createAndAddButton("next");
     mb_rotateButton = buttonPanel.createAndAddButton("rotate");
-    buttonPanel.add(mu_saveButton);
+    buttonPanel.add(mb_saveButton);
     buttonPanel.add(mu_cancelButton);
     buttonPanel.align();
     add(buttonPanel, BorderLayout.SOUTH);
@@ -196,16 +200,17 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
    */
   public void loadById(long id) {
     m_currentPicture = DigiPicture.getById(id);
-    m_logger.fine("Loaded as " + m_currentPicture.getThumbFormat());
+    m_logger.log(Level.FINE, "Loaded as {0}", m_currentPicture.getThumbFormat());
 
     try {
-      if (mc_noTransformation.isSelected())
+      if (mc_noTransformation.isSelected()) {
         mu_displayPicturePanel.loadPicture(m_currentPicture.getThumbAsBufferedImage());
-      else
+      } else {
         mu_displayPicturePanel.loadPicture(m_currentPicture.getThumbAsOrientedBufferedImage());
+      }
     } catch (SQLException | IOException ex) {
       ZxMessageDialog.displayExceptionMessage(this,
-          "pictureMaintain.exception.cannotload", ex);
+              "pictureMaintain.exception.cannotload", ex);
     }
   }
 
@@ -220,7 +225,7 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
       displaySelectedPicture(m_currentTableRow);
     } catch (SQLException | IOException ex) {
       ZxMessageDialog.displayExceptionMessage(this,
-          "pictureMaintain.exception.cannotload", ex);
+              "pictureMaintain.exception.cannotload", ex);
     }
   }
 
@@ -231,7 +236,7 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
       displaySelectedPicture(m_currentTableRow);
     } catch (SQLException | IOException ex) {
       ZxMessageDialog.displayExceptionMessage(this,
-          "pictureMaintain.exception.cannotload", ex);
+              "pictureMaintain.exception.cannotload", ex);
     }
   }
 
@@ -257,7 +262,7 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
       mu_displayPicturePanel.loadPicture(m_currentPicture.getThumbAsOrientedBufferedImage());
     } catch (SQLException | IOException ex) {
       ZxMessageDialog.displayExceptionMessage(this,
-          "pictureMaintain.exception.cannotload", ex);
+              "pictureMaintain.exception.cannotload", ex);
     }
   }
 
@@ -294,7 +299,7 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
           m_currentTableRow = 0;
         } catch (SQLException | IOException ex) {
           ZxMessageDialog.displayExceptionMessage(this,
-              "pictureMaintain.exception.cannotload", ex);
+                  "pictureMaintain.exception.cannotload", ex);
         }
       }
     }
@@ -309,10 +314,11 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
     m_currentPicture = m_storageMediumStructureData.getPictureFromRow(row);
     mu_pictureFileTable.clearSelection();
     mu_pictureFileTable.addRowSelectionInterval(row, row);
-    if (mc_noTransformation.isSelected())
+    if (mc_noTransformation.isSelected()) {
       mu_displayPicturePanel.loadPicture(m_currentPicture.getThumbAsBufferedImage());
-    else
+    } else {
       mu_displayPicturePanel.loadPicture(m_currentPicture.getThumbAsOrientedBufferedImage());
+    }
     m_exifTableModel.load(m_currentPicture);
   }
 
@@ -322,11 +328,11 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
     if (selPath != null) {
       Object obj = selPath.getLastPathComponent();
       if (obj instanceof PicDirectory picDirectory) {
-        m_logger.log(Level.FINE, "Selected is: {0}", picDirectory.getDirectoryName());
+        m_logger.log(Level.FINE, "Selected is: {0}",
+                picDirectory.getDirectoryName());
         DuplicateDisplay display = new DuplicateDisplay();
         display.start(picDirectory);
 //                display.setVisible(true);
-
       }
     }
   }
@@ -345,44 +351,64 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
     mc_mediumTitleComboBox.setSelectionByKey(selectedMediumId);
   }
 
+  /*
+  Funktionen, die zum JUnit (5) Testen benoetigt werden
+   */
+  /**
+   * Returns the relevant buttons for testing
+   * 0 -> mb_saveButton -- saves the image after updating the orientation
+   * 1 -> mb_rotateButton -- rotates the loaded image
+   *
+   * @return
+   */
+  public ArrayList<JButton> getButtons() {
+    if (mu_buttons == null) {
+      mu_buttons = new ArrayList<>();
+      mu_buttons.add(mb_saveButton);
+      mu_buttons.add(mb_rotateButton);
+    }
+    return mu_buttons;
+  }
+
   // ActionListener implementation
   @Override
   public void actionPerformed(ActionEvent ae) {
     Object source = ae.getSource();
-    if (source == mu_cancelButton)
+    if (source == mu_cancelButton) {
       dispose();
-    else if (source == mb_previousButton)
+    } else if (source == mb_previousButton) {
       performPreviousOperation();
-    else if (source == mb_nextButton)
+    } else if (source == mb_nextButton) {
       performNextOperation();
-    else if (source == mu_saveButton)
+    } else if (source == mb_saveButton) {
       performSaveOperation();
-    else if (source == mc_mediumTitleComboBox)
+    } else if (source == mc_mediumTitleComboBox) {
       performLoadStorageMedium();
-    else if (source == mc_indicateDuplicates)
+    } else if (source == mc_indicateDuplicates) {
       performIndicateDuplicate();
-    else if (source == mu_listDuplicates)
+    } else if (source == mu_listDuplicates) {
       performListDuplicates(ae);
-    else if (source == mb_rotateButton)
+    } else if (source == mb_rotateButton) {
       performRotate();
-    else if (source == mb_findStorageMediumButton)
+    } else if (source == mb_findStorageMediumButton) {
       performFindStorageMedium();
-    else
+    } else {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
   }
 
   // MouseListener implementation
   @Override
   public void mouseClicked(MouseEvent e) {
     Object src = e.getSource();
-    if (src == mu_fileStructureTree)
+    if (src == mu_fileStructureTree) {
       performTreeSelected(e);
-    else if (src == mu_pictureFileTable)
+    } else if (src == mu_pictureFileTable)
             try {
       m_logger.fine("File Table selected");
       performFileTableSelected(e);
     } catch (IOException | SQLException | RuntimeException ex) {
-      System.err.printf("Exception gefangen...... "+ex.getLocalizedMessage());
+      System.err.printf("Exception gefangen...... " + ex.getLocalizedMessage());
       ex.printStackTrace();
     }
   }

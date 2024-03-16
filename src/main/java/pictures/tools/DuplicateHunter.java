@@ -14,7 +14,7 @@ import rzx.ui.ZxBaseTableModel;
 
 /**
  * Class to find duplicate files in a folder.
- *
+ * @todo find out where used, to be removed ??
  * @author rene
  */
 public class DuplicateHunter extends ZxBaseTableModel implements Runnable {

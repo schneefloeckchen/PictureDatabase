@@ -18,8 +18,6 @@ import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -27,8 +25,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.TableModelEvent;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import picdata.MediumType;
 import picdata.PictureMedium;
 import pictures.ui.popups.MediumLoadStatisticsDisplay;
@@ -140,7 +136,7 @@ public class MaintainPictureMediumUI extends BaseDialogUI implements MouseListen
         mu_scanMediumButton = dialogButtonPanel.createAndAddButton("scan");
         mu_reloadButton = dialogButtonPanel.createAndAddButton("reload");
         mu_displayMediumButton = dialogButtonPanel.createAndAddButton("display");
-        mu_saveButton = dialogButtonPanel.createAndAddButton("save");
+        mb_saveButton = dialogButtonPanel.createAndAddButton("save");
         mu_newButton = dialogButtonPanel.createAndAddButton("new");
         mu_cancelButton = dialogButtonPanel.createAndAddButton("cancel");
         mu_ejectMediumButton = dialogButtonPanel.createAndAddButton("eject");
@@ -331,10 +327,10 @@ public class MaintainPictureMediumUI extends BaseDialogUI implements MouseListen
 
     /**
      * like getTextFields, but for the JButtons in the UI Current
-     * implementation:
-     * 0 -> mu_newButton (create a new entry in the database)
-     * 1 -> mu_saveButton (saves the loaded entry);
-     * 2 -> mu_clearButton (clear the ui)
+ implementation:
+ 0 -> mu_newButton (create a new entry in the database)
+ 1 -> mb_saveButton (saves the loaded entry);
+ 2 -> mu_clearButton (clear the ui)
      *
      * @return
      */
@@ -342,7 +338,7 @@ public class MaintainPictureMediumUI extends BaseDialogUI implements MouseListen
         if (mu_buttonList == null) {
             mu_buttonList = new ArrayList<>();
             mu_buttonList.add(mu_newButton);      // 0
-            mu_buttonList.add(mu_saveButton);     // 1
+            mu_buttonList.add(mb_saveButton);     // 1
             mu_buttonList.add(mu_clearButton);    // 2
         }
         return mu_buttonList;
@@ -383,7 +379,7 @@ public class MaintainPictureMediumUI extends BaseDialogUI implements MouseListen
             dispose();
         } else if (source == mu_newButton) {
             performNewEntryFunction();
-        } else if (source == mu_saveButton) {
+        } else if (source == mb_saveButton) {
             performSaveEntryFunction();
         } else if (source == mu_loadMediumButton) {
             performLoadMediumFunction();

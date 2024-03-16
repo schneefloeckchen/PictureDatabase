@@ -40,12 +40,13 @@ public class Searcher {
 
   public void setEntityManager(EntityManager em) {
     m_entityManager = em;
-    m_cameraFindByModelAndManufacturerQuery = m_entityManager.createNamedQuery(
-            "Camera_findByModelAndManufacturer", Camera.class);
+//    m_cameraFindByModelAndManufacturerQuery = m_entityManager.createNamedQuery(
+//            "Camera_findByModelAndManufacturer", Camera.class);
   }
 
   /**
    * Locates the first entry of the camera/hersteller pair in the Camera table
+   * Feb 2024 test created
    *
    * @param model
    * @param manufacturer
@@ -54,6 +55,10 @@ public class Searcher {
   public Camera searchCameraByModelAndManufacturer(String model, String manufacturer) {
     if (m_entityManager == null) {
       setEntityManager(PicJPAUtil.getInstance().createEntityManager());
+    }
+    if (m_cameraFindByModelAndManufacturerQuery == null) {
+      m_cameraFindByModelAndManufacturerQuery = m_entityManager.createNamedQuery(
+              "Camera_findByModelAndManufacturer", Camera.class);
     }
     m_cameraFindByModelAndManufacturerQuery.setParameter("modelName", model);
     m_cameraFindByModelAndManufacturerQuery.setParameter("manufacturerName", manufacturer);
@@ -74,9 +79,10 @@ public class Searcher {
    * Searches a picture by its filename and date, when it was taken. It uses
    * the session, which is globally managed from the HibernateUtil class
    *
+   * Feb 2024 Test created
+   *
    * @param name filename of the picture
    * @param date date, when it was taken, as loaded from the EXIF Data
-   *
    * @return
    *
    * @todo optimize performance, can precompiled query be used?
@@ -98,28 +104,36 @@ public class Searcher {
     }
   }
 
-  /*public List<DigiPicture> seachPicturesByName(String name) {
+  /**
+   * searches a picture by its filename
+   * @todo create JUNIT Test
+   * @param name
+   * @return 
+   */
+  public List<DigiPicture> seachPicturesByName(String name) {
     String name2 = name.replace("'", "");      // if a ' is in the file name
-    Query query = m_session.createQuery(
-        "from DigiPicture where FILE_NAME='" + name2 + "'");
+    Query query = m_entityManager.createQuery(
+        "from DigiPicture where fileName = '" + name2 + "'");
     try {
       List<DigiPicture> pic = query.getResultList();
       return pic;
     } catch (NoResultException ex) {
       return null;
     }
-  } */
-
- /* public PictureMedium searchPictureMediumByCode(int code) {
+  }
+  
+  public PictureMedium searchPictureMediumByCode(int code) {
     String queryString = "from PictureMedium m where m.code=" + code;
-    Query query = m_session.createQuery(queryString);
+//    Query query = m_session.createQuery(queryString);
+    Query query = m_entityManager.createQuery(queryString);
     try {
       PictureMedium medium = (PictureMedium) query.getSingleResult();
       return medium;
     } catch (NoResultException ex) {
       return null;
     }
-  }*/
+  }
+
   public List<PictureMedium> searchPictureMediumsByTitle(String title) {
     String queryString
             = "from PictureMedium m where m.title like \"" + title + "\"";
@@ -148,6 +162,13 @@ public class Searcher {
     }
   }
 
+  /**
+   * searches for the PicDirctories with a specific name. 
+   * the name can contain Wildcards
+   * 
+   * @param name
+   * @return 
+   */
   public List<PicDirectory> searchPictureDirectory(String name) {
     String queryString
             = "from PicDirectory p where p.directoryName like \"" + name + "\"";

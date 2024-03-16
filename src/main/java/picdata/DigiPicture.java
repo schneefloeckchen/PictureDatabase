@@ -253,16 +253,12 @@ public class DigiPicture extends PicDataBaseClass {
     this.directories = directories;
   }
 
-  public boolean hasDuplicates() {
-    boolean duplicates;
-    //        Session s = PicHibernateUtil.getSessionFactory().openSession();
-    //        s.refresh(this);
-    //        boolean duplicates = (directories.size() > 1);
-    //        s.close();
-    try (EntityManager em = PicJPAUtil.getInstance().createEntityManager()) {
-      em.refresh(this);
-      duplicates = (directories.size() > 1);
-    }
+  /**
+   * returns true, if the picture is stored on multiple media
+   * @return 
+   */
+  public boolean hasDuplicates() {    // @todo create junit test
+    boolean duplicates = (directories.size() > 1);
     return duplicates;
   }
 
@@ -296,6 +292,7 @@ public class DigiPicture extends PicDataBaseClass {
    * @throws IOException
    * @throws JpegProcessingException
    * @throws com.drew.imaging.tiff.TiffProcessingException
+   * @throws com.drew.imaging.png.PngProcessingException
    */
   public void preLoad(File file) throws IOException, JpegProcessingException, TiffProcessingException, PngProcessingException {
     m_exifHelper = new ExifHelper();

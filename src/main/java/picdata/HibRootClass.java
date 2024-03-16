@@ -104,12 +104,13 @@ public abstract class HibRootClass implements Serializable {
     Object o;
     try (EntityManager em = putil.createEntityManager()) {
       em.getTransaction().begin();
-      if (id < 0L)             // Create a new entry, if id is -1
+      if (id < 0L) // Create a new entry, if id is -1
+      {
         em.persist(this);
-      else // if already there, update the object.
-      if (em.contains(this))
+      } else // if already there, update the object.
+      if (em.contains(this)) {
         em.persist(this);   // if already managed by the EM
-      else {
+      } else {
         Object o_ = em.merge(this);
         em.persist(o_); // @todo: validate this, merge creates a new object,
         // which is linked to the transaction. Ever used? yes, but isn't working

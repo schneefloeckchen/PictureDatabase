@@ -53,6 +53,10 @@ public class DigiPictureTest extends TestBaseClass {
 //    cleanDatabase();
   }
 
+  /**
+   * adds two pictures to an directory and uses a separate EntityManager
+   * to validate this (count pics in folder).
+   */
   @Test
   public void testAddingPictures() {
     PicDirectory pDir = new PicDirectory();
@@ -85,7 +89,8 @@ public class DigiPictureTest extends TestBaseClass {
    * Foreign Keys are also created which let the test fail
    * as it was initially implemented
    */
-  @Test @Disabled
+  @Test
+  @Disabled
   public void crossTable1stSimpleTest() {
 //    disableForeignKeyChecks()
     log("Start");
@@ -120,7 +125,8 @@ public class DigiPictureTest extends TestBaseClass {
    * (3) Remove the picture and check, picture still there, bas entry in
    * cross-table removed.
    */
-  @Test @Disabled
+  @Test
+  @Disabled
   public void crossTable2ndSimpleTest() {
     log("starte crossTable2ndSimpleTest");
 //    disableForeignKeyChecks();
@@ -190,7 +196,8 @@ public class DigiPictureTest extends TestBaseClass {
    * (2) remove one picture from the directory, but do not remove the picture
    * the database
    */
-  @Test @Disabled
+  @Test
+  @Disabled
   public void crossTable3rdSimpleTest() {
     log("Starte crossTable3rdSimpleTest");
     createM_pDir1("pDir1", m_picMedium1);
@@ -306,11 +313,12 @@ public class DigiPictureTest extends TestBaseClass {
    * Tests handling of the cross table / the n x m relationship
    * Use two folders, which have some picture in common.
    * Removal of pictures included
-   * 
+   *
    * Not working, check first simplier entry removal.
-   * 
+   *
    */
-  @Test @Disabled
+  @Test
+  @Disabled
   public void CrossTableDelete2Test() {
 
     // Create 2 directories, each assigned to its own medium, save to the database
@@ -392,6 +400,50 @@ public class DigiPictureTest extends TestBaseClass {
 
   }
 
+  /*
+    Creates 2 folder and some DigiPictureObjects. 1 picture is stored in both folder,
+    other only in one. Than checks wether the hasDuplicates method delivers
+    the right answer.
+    the pic objects are synthetic, not created from a image file
+   */
+  @Test
+  protected void testHasDuplicatesSimple() {
+    log("Starte test hasDuplicates simple version");
+    assertNotNull(m_picMedium1);
+    assertNotNull(m_picMedium2);
+    createM_pDir1("pDir1", m_picMedium1);
+    createM_pDir2("pDir2", m_picMedium2);
+    countRecords("PIC_DIRECTORY", 2);
+    assertNotNull (m_pDir1);
+    assertNotNull (m_pDir2);      // Just checking, if already created
+// Create and validate first pic, which is just in one folder
+    DigiPicture pic1 = new DigiPicture();
+    pic1.setFileName("PIC1");
+    pic1.setPictureTakenMilis(1000);
+    pic1.addDirectory(m_pDir1);
+    pic1.update();
+    assertNotEquals(-1, pic1.getId(), "Picture in database?");
+    long pic1Id = pic1.getId();
+    log ("Created id for new pic is "+pic1Id);
+    countPicDirMap(1);
+// Create and validate 2nd pic, which is stored in two folder
+    DigiPicture pic2 = new DigiPicture();
+    pic2.setFileName("PIC2");
+    pic2.setPictureTakenMilis(1000);
+    pic2.addDirectory(m_pDir1);
+    pic2.addDirectory(m_pDir2);
+    pic2.update();
+    assertNotEquals(-1, pic2.getId(), "Picture in database?");
+    long pic2Id = pic2.getId();
+    log ("Created id for 2nd pic is "+pic2Id);
+    countPicDirMap(3);
+ //  now load the two pics and validate the hasDuplicate Method
+    DigiPicture test = DigiPicture.getById(pic1Id);
+    assertFalse(test.hasDuplicates(), "Just one folder");
+    test = DigiPicture.getById(pic2Id);
+    assertTrue(test.hasDuplicates(), "SHall have duplicates");
+  }
+
   private void createM_pDir1(String name, PictureMedium medium) {
     m_pDir1 = create_pDir(name, medium);
   }
@@ -410,8 +462,8 @@ public class DigiPictureTest extends TestBaseClass {
       DigiPicture picUnderTest = em.find(DigiPicture.class, pic.getId());
       assertNotNull(picUnderTest);
       assertEquals(
-          expectedSize, picUnderTest.getDirectories().size(),
-          "Number of Folder, where the picture is stored");
+              expectedSize, picUnderTest.getDirectories().size(),
+              "Number of Folder, where the picture is stored");
     }
   }
 
@@ -425,8 +477,8 @@ public class DigiPictureTest extends TestBaseClass {
       PicDirectory directoryUnderTest = em.find(PicDirectory.class, dir.getId());
       assertNotNull(directoryUnderTest);
       assertEquals(
-          expectedCount, directoryUnderTest.getPictures().size(),
-          "Number of pictures in Folder ");
+              expectedCount, directoryUnderTest.getPictures().size(),
+              "Number of pictures in Folder ");
     }
   }
 
@@ -439,7 +491,7 @@ public class DigiPictureTest extends TestBaseClass {
           PicDirectory.class, dir.getId()); */
     try (EntityManager em = PicJPAUtil.getInstance().createEntityManager()) {
       PicDirectory directoryUnderTest = em.find(
-          PicDirectory.class, dir.getId());
+              PicDirectory.class, dir.getId());
       System.out.println("Dir loaded - " + dir.getDirectoryName());
       directoryUnderTest.getPictures().forEach(pic -> {
         System.out.println(pic.getFileName());

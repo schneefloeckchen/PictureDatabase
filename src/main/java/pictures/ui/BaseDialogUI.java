@@ -22,7 +22,7 @@ public abstract class BaseDialogUI extends JDialog implements ActionListener {
     protected ZxUIElementFactory m_uiElementFactory = ZxUIElementFactory.getInstance();
     protected ZxResourceFactory m_resourceFactory = ZxResourceFactory.getInstance();
     protected JButton mu_cancelButton = null;
-    protected JButton mu_saveButton = null;
+    protected JButton mb_saveButton = null;
     protected Logger m_logger = Logger.getLogger(getClass().getName());
 
     public BaseDialogUI() {
@@ -33,7 +33,7 @@ public abstract class BaseDialogUI extends JDialog implements ActionListener {
         setLayout(new BorderLayout());
         m_uiElementFactory.configure("generic", this);
         mu_cancelButton = m_uiElementFactory.createCancelButton();
-        mu_saveButton = m_uiElementFactory.createSaveButton();
+        mb_saveButton = m_uiElementFactory.createSaveButton();
     }
     
     /**

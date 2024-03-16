@@ -80,5 +80,108 @@
             <li>rzx.ui.ZxLogPanel</li>
             <li>pictures.tools.DuplicateHunter</li>
         </ol>
+        <p>Nach korrekturen keine Compile Fehler mehr. Tests f&uuml;r Searcher
+          erstellt.</p>
+        <p>Check DuplicateHunter, no usage found so far. CHeck again, when
+          remaining stuff is done.</p>
+        <p>CompareFolderProcessor kopiert, Keine fehlenden Klassen. Schreibe Test,
+          braucht Test-Daten (Image Files), Test mit neuen Test-Verzeichnissen erzeugt, ok.</p>
+        <p>N&auml;chstes tool:</p>
+        <<ol>
+          <li>pictures.tools.RemoveBaseProcessor</li>
+          <li>pictures.tools.DirectoryRemoveProcessor</li>
+          <li>pictures.tools.PicShortData</li>
+        </ol>
+        <p>Fazit: Ergebnisse stimmen nicht, aber braucht es das Ding wirklich 
+          (Entfernen von Foldern nur)? Check, und danach erst bugfix.</p>
+        <p>N&auml;chstes Tool: MediumDeletePocessor.java, SW Korrekturen zuerst.,</p>
+        <p>Alte Tests aus CompareFolderProcessorTest ins neue System migriert.</p>
+        <p>DisplayPictureDataProcessor und DisplayRecord migriert. keine Tests</p>
+        <p>ExifDataReader, keine Tests noetig</p>
+        <p>LoadPictureTester, no tests to do</p>
+        <p>Damit alle tools migriert und mit tests versehen, wo noetig.</p>
+        <p>CatalogEditTable und CatalogUI kopiert, offen:</p>
+        <ol>
+          <li>TableModelBase und </li>
+          <li>CatalogEditTable</li>
+        </ol>
+        <p>Tests f. CatalogEditTable und CatalogUI geschrieben, testen auch noch
+          mal via CatalogUI paar basics des ORM.</p>
+        <<h2>Status so far</h2>
+        <p>Source Package Folder</p>
+        <table>
+          <th>
+          <tr><td>Folder</td><<td>STatus / todo</td></tr>
+          </th>
+          <tbody>
+            <tr>
+              <td>hib</td>
+              <<td>done</td>
+            </tr>
+            <tr>
+              <td>picdata</td>
+              <<td>done</td>
+            </tr>
+            <tr>
+              <td>picdata.extended</td>
+              <<td>Eine Klasse, nur f. DisplayfunktionTest?</td>
+            </tr>
+            <tr>
+              <td>pictures</td>
+              <<td>Start Klasse, noch offen</td>
+            </tr>
+            <tr>
+              <td>pictures.tools</td>
+              <<td>done, paar tests offen</td>
+            </tr>
+            <tr>
+              <td>Pictures.ui</td>
+              <td>einige noch zu migrierende Klassen</td>
+            </tr>
+            <tr>
+              <td>pictures.ui.elements</td>
+              <<td>Viele noch nicht migrierte Klassen</td>
+            </tr>
+            <tr>
+              <td>pictures.ui.popups</td>
+              <<td>eine Klasse, test offen</td>
+            </tr>
+            <tr>
+              <td>pictures.ui.tools</td>
+              <<td>offen, 2 Klassen</td>
+            </tr>
+            <tr>
+              <td>rzx.graphics</td>
+              <td>done</td>
+            </tr>
+            <tr>
+              <td>rzx.ui</td>
+              <td>done, weitere migration nach Bedarcf</td>
+            </tr>
+            <tr>
+              <td>rzx.util</td>
+              <<td>done</td>
+            </tr>
+          </tbody>
+        </table>
+          <p>pictures.ui.tools migrieren, offen sind:</p>
+          <ol>
+            <li>CompareFolderUI, ben&ouml;tigt: ZxDropTargetTextField,
+              Text geschrieben f. compare folder, muss reviewed werden, ob Prozess, Variable Namen und doku zusammenpassen</li>
+            <li>CreatePresentationPicturesUI</li>
+          </ol>
+          <p>UI Migration jetzt von unten nach oben.</p>
+          <<ol>
+            <li>MediumLoadOptionsDialog, ben&ouml;tigt ZxTreeTable, ZxTree</li>
+            <li>SearchDialog</li>
+            <li>SearchImageDialog, braucht: SearchImageResultStorage</li>
+            <li>ToolsUI, braucht CreatePresentationPicturesUI</li>
+            <li>Start Programm, Picturesdatabase. Die Migration Version unter ..Migration gesichert.
+            Fehlt: MainUI.</li>
+            <li>MainUI angepasst m. PicJPAUtil sowie ValidatesFileDialog und
+              ValidateFilesStorage &uuml;bernommen.</li>
+          </ol>
+          <p>Rest zusammengesetzt, nach paar kleinen Korrekturen, laeuft. Offene Punkte mit ToDo im Code.</p>
+
     </body>
 </html>
