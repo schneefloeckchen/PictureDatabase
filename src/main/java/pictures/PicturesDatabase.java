@@ -94,8 +94,10 @@ change package from jacax.persistence to jakarta.persistence
 move from hibernate legacy Session to JPA standard EntityManager and EntityManagerFactory
 replace legacy Criteria Builder with JPA standard
 16.3.2024 RZ Migration to JPA w. Hibernate (6.2.6.Final) implementation, Java 21
-and Maven finished. Tagged as 1.5.
-
+and Maven finished. Tagged as 1.5. tar sicherung per skript erstellt
+24.4.24 Migration to Java 21, JPA and Hibernate 6.2.6.final) abgeschlossen,
+als 2.0 mit allen dependencies produktiv gesetzt. With 2.0 tagged, commouued and
+pushed to remote
 
 
 Globale ToDos:
@@ -111,6 +113,7 @@ really an improvement.
 right now data are only written but now read.
 @todo add HP 10 Tablet to the list of possible devices (Presentation pictures)
 @todo optimize the start for the folder search for the presentation pics, curr. points to the test area
+@todo finish Multithreading in databaseChecker, so that the result table display the progress of tje validation
  */
 package pictures;
 
@@ -120,6 +123,7 @@ import jakarta.persistence.EntityManagerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
@@ -138,18 +142,19 @@ import rzx.ui.ZxResourceFactory;
  * schief gegangen ist, Zunaechst im Speicher, mit export funktion.
  * @todo: Workflow beim laden der CD/DVD. Erst scan starten, wenn medium erzeugt
  * in DB
- * Check, was hibernate und was JPA ist
  */
 public class PicturesDatabase {
   
-  static MainUI ui = null;
-
+  private static MainUI ui = null;
+  private static final LoggingStarter loggingStarter = new LoggingStarter();
+  
   /**
    *
    * @param args the command line arguments
    */
   public static void main(String[] args) {
-    setupLogger();
+  
+    loggingStarter.startLogging();
     Logger logger = Logger.getLogger("pictures.PicturesDatabase");
     logger.log(Level.FINE, args == null ? "Args = null" : "Args vorhanden");
     if (args != null) {
@@ -192,19 +197,61 @@ public class PicturesDatabase {
    * Setting up the logger configuration. The properties file is
    * located in home/.imageDB -> see source code. It cannot be modified through
    * the NB IDE!
+   * see    https://stackoverflow.com/questions/20389255/reading-a-resource-file-from-within-jar
+   * und    https://docs.geotools.org/latest/userguide/library/metadata/logging/java_logging.html
    */
-  private static void setupLogger() {
+  private void setupLogger() {
     Logger emergencyLogger = Logger.getAnonymousLogger();
     LogManager logManager = LogManager.getLogManager();
+    InputStream res = getClass().getResourceAsStream("/logging.properties");
+//    System.out.println("logging file exists? : "+f.exists());
     try {
       String path = System.getProperty("user.home");
       logManager.readConfiguration(
-              new FileInputStream(path
-                      + File.separator + ".imageDB/logging.properties"));
+              new FileInputStream(
+                      "logging.properties"));
+      
+//      String path = System.getProperty("user.home");
+//      logManager.readConfiguration(
+//              new FileInputStream(path
+//                      + File.separator + ".imageDB/logging.properties"));
       Logger l = Logger.getLogger("initial");
+      
       l.log(Level.WARNING, "Logger started with {0}", l.getLevel().toString());
     } catch (IOException | SecurityException ex) {
       emergencyLogger.severe(ex.getLocalizedMessage());
     }
   }
+  
+  private static void setupLoggerSave() {
+    Logger emergencyLogger = Logger.getAnonymousLogger();
+    LogManager logManager = LogManager.getLogManager();
+    File f = new File ("/logging.properties");
+    System.out.println("logging file exists? : "+f.exists());
+    try {
+      String path = System.getProperty("user.home");
+      logManager.readConfiguration(
+              new FileInputStream(
+                      "logging.properties"));
+      
+//      String path = System.getProperty("user.home");
+//      logManager.readConfiguration(
+//              new FileInputStream(path
+//                      + File.separator + ".imageDB/logging.properties"));
+      Logger l = Logger.getLogger("initial");
+      
+      l.log(Level.WARNING, "Logger started with {0}", l.getLevel().toString());
+    } catch (IOException | SecurityException ex) {
+      emergencyLogger.severe(ex.getLocalizedMessage());
+    }
+  }
+
+
+//  private static void setupLogger() {
+//    try {
+//      
+//    } 
+//            
+//      }
+//  
 }

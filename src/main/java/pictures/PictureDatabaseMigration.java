@@ -6,6 +6,7 @@ package pictures;
 
 /**
  * for test and migration purpose only
+ * Dummy sozusagen
  */
 
 import java.util.Locale;

@@ -187,7 +187,7 @@ public class CompareFolderProcessor {
 
   /**
    * prints the content of the Storage Images Map to standard output
-   * Just for testing purpose
+   * Just for testing purpose, therefore keep System.out!
    */
   public void dumpStorage() {
     m_storageImages.forEach((key, entry) -> {

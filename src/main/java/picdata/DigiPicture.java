@@ -4,7 +4,6 @@ import com.drew.imaging.jpeg.JpegProcessingException;
 import com.drew.imaging.png.PngProcessingException;
 import com.drew.imaging.tiff.TiffProcessingException;
 import com.drew.metadata.MetadataException;
-import hib.PicJPAUtil;
 // import hib.PicHibernateUtil;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -374,7 +373,6 @@ public class DigiPicture extends PicDataBaseClass {
   public void persist(EntityManager em) {
     if (camera != null && camera.getId() == -1) {
       m_logger.fine("Persisting CAMERA Object while saving picture");
-      System.out.println("Creating CameraModel ");
       em.persist(camera);
     }
     em.persist(this);

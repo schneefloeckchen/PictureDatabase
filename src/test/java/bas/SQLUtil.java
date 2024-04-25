@@ -91,7 +91,7 @@ public class SQLUtil {
    * Methode zaehlt die Elemente in einer Tabelle
    *
    * @param table
-   * @return Number of rows in gthe table
+   * @return Number of rows in the table or -1 if an error occured
    */
   public int countElementsInTable(String table) {
     try {

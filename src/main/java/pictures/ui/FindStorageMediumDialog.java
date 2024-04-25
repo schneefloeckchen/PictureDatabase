@@ -3,6 +3,7 @@ package pictures.ui;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.logging.Level;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
@@ -133,7 +134,6 @@ public class FindStorageMediumDialog extends BaseDialogUI {
     int selectedRow = m_resultTable.getSelectedRow();
     if (selectedRow > -1) {
       Object selectedObject = m_searchTableModel.getMedium(selectedRow);
-      System.out.println("Object is "+selectedObject.getClass().getName());
       if (selectedObject instanceof PictureMedium medium) {
         m_selectedId = medium.getId();
       } else if (selectedObject instanceof PicDirectory directory) {
@@ -174,8 +174,7 @@ public class FindStorageMediumDialog extends BaseDialogUI {
   private void performSearchFolderOperation() {
     String name = mt_folderNameTextField.getText();
     List<PicDirectory> result = m_searcher.searchPictureDirectory(name);
-    System.out.println("Länge " + result.size());
-    System.out.println(result);
+    m_logger.log(Level.FINE, "Length of Result is {0}", result.size());
     m_searchTableModel = new FolderSearchTableModel();
     m_searchTableModel.setLabels("folder", FOLDER_TABLE_HEADER);
     m_searchTableModel.setData(result);

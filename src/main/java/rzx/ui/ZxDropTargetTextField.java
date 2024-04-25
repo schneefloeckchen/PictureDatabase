@@ -69,10 +69,13 @@ public class ZxDropTargetTextField extends ZxTextField implements DropTargetList
     } catch (UnsupportedFlavorException | IOException ex) {
       Logger.getLogger(ZxDropTargetTextField.class.getName()).log(Level.SEVERE, null, ex);
     }
-    
-    
   }
+  
+  /**
+   * Entrypoint just if we need it again. 
+   * @param text 
+   */
   private void print(String text) {
-    System.out.println(text);
+//    Logger.getAnonymousLogger().fine(text);
   }
 }

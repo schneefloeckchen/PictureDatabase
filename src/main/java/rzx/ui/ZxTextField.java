@@ -71,6 +71,16 @@ public class ZxTextField extends JTextField implements ZxUIComponent {
     getDocument().removeDocumentListener(l);
   }
 
+  /**
+   * checks, if the text field is empty, e.g. only blanks, tabs and nothing else
+   * in the textField.
+   * 
+   * @return true if empty
+   */
+  public boolean isEmpty() {
+    return getText().trim().length() == 0;
+  }
+  
   /* Implementation of the ZxUIComponent interface */
   /**
    * erases the content of the text field

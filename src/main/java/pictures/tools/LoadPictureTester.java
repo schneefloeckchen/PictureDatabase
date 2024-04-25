@@ -37,7 +37,6 @@ public class LoadPictureTester {
 
     public void loadFile(File file) {
         long newId;
-//        for (String m: ImageIO.getReaderFormatNames()) System.out.println(m);
         try {
             m_picture = new DigiPicture();
             m_picture.load(file);

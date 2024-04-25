@@ -55,6 +55,7 @@ public abstract class HibRootClass implements Serializable {
     return sTmp.trim();
   }
 
+  // Updates the entry within a session
   public void updateInSession() {
     updateInSession(PicJPAUtil.getInstance().createEntityManager());
   }

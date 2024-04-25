@@ -102,6 +102,7 @@ public class ToolsUI extends BaseDialogUI {
     mu_createPresentationPicturesButton = mu_row1ButtonPanel.createAndAddButton("createPresentationPictures");
     mu_removeStorageMediaButton = mu_row2ButtonPanel.createAndAddButton("removeStorageMedium");
     mu_removeDirectoryButton = mu_row2ButtonPanel.createAndAddButton("removeDirectory");
+    mu_removeDirectoryButton.setEnabled(false);
     mu_checkDatabaseButton = mu_row2ButtonPanel.createAndAddButton("checkDatabase");
     mu_displayDatabaseRecordButton = mu_row2ButtonPanel.createAndAddButton("displayRecord");
     mu_row2ButtonPanel.add(mu_cancelButton);

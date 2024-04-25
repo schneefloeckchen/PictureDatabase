@@ -6,6 +6,7 @@ import jakarta.persistence.Persistence;
 import jakarta.persistence.Query;
 import java.sql.Connection;
 import java.util.Map;
+import java.util.logging.Logger;
 import org.hibernate.Session;
 
 /**
@@ -27,6 +28,7 @@ public class PicJPAUtil {
   private String m_truncateCommand ="";     // Command to reset the ID Generation
   private String m_ignoreForeignKeysCommand = "";
   private Map<String, Object> m_properties = null;  // Propert. of the Persistence
+  private Logger m_logger = Logger.getLogger(getClass().getName());
   
   private PicJPAUtil() {
   }
@@ -44,7 +46,7 @@ public class PicJPAUtil {
    */
   public void configure(String configuration) {
     if (m_entityManagerFactory == null) {
-      System.out.println("\nPicJPAUtil -- configuration is " + configuration);
+      m_logger.fine ("\nPicJPAUtil -- configuration is " + configuration);
       m_entityManagerFactory = Persistence.createEntityManagerFactory(configuration);
       m_properties = m_entityManagerFactory.getProperties();
       m_driverUrl = loadProperty("hibernate.connection.url");
@@ -63,7 +65,7 @@ public class PicJPAUtil {
   private String loadProperty (String key) {
     Object obj = m_properties.get(key);
     if (obj == null) {
-      System.err.println ("Cannot load property "+key);
+      m_logger.severe("Cannot load property "+key);
       return null;
     } else
       return obj.toString();
@@ -106,9 +108,9 @@ public class PicJPAUtil {
   public Connection getConnection() {
     
     EntityManager em = createEntityManager();
-    Query query = em.createQuery ("Select count(*) from Camera");
-    long result = (Long)query.getSingleResult();
-    System.out.println("Anzahl Cameras in getConnection " + result);
+//    Query query = em.createQuery ("Select count(*) from Camera");
+//    long result = (Long)query.getSingleResult();
+//    m_logger.fine ("Anzahl Cameras in getConnection " + result);
     // Session session = em.unwrap(Session.class);
     Connection conn = em.unwrap(java.sql.Connection.class);
     return conn;
