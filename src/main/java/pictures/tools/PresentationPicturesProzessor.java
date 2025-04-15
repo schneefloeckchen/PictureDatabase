@@ -18,6 +18,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import javax.swing.JDialog;
@@ -72,7 +77,15 @@ public class PresentationPicturesProzessor {
     m_uiClass = uiClass;
   }
 
-  public void createSequenceFile(File sequenceFile, String folderName) {
+  /**
+   * Creates the sequence file for further processing
+   *
+   * @param sequenceFile
+   * @param folderName
+   * @param byDate if true, the sequence file will be sorted by creation date
+   */
+  public void createSequenceFile(File sequenceFile, String folderName,
+          boolean byDate) {
     try {
       BufferedWriter writer = new BufferedWriter(new FileWriter(sequenceFile));
       Timestamp currentDate = new Timestamp(System.currentTimeMillis());
@@ -82,9 +95,10 @@ public class PresentationPicturesProzessor {
       writeLine(writer, "!");
       File folder = new File(folderName);
       File[] files = folder.listFiles((File dir, String name)
-          -> name.endsWith(".jpg") || name.endsWith(".JPG")
-          || name.endsWith(".jpeg") || name.endsWith(".JPEG"));
+              -> name.endsWith(".jpg") || name.endsWith(".JPG")
+              || name.endsWith(".jpeg") || name.endsWith(".JPEG"));
       String[] fileNames = new String[files.length];
+      Map fileEntries = new HashMap<Long, String>();
       int counter = 0;
       for (File file : files) {
         String line = file.getName();
@@ -93,6 +107,7 @@ public class PresentationPicturesProzessor {
         try {
           helper.load(new File(folderName + "/" + line));
           int orientation = helper.getPictureOrientation();
+          long pictureTakenMillis = helper.getPictureTakenDateSeconds();
           // Orientierungen unter
           // https://www.impulseadventure.com/photo/exif-orientation.html
           // 1: Bild ok, 8: 90 drees left, so turn right
@@ -107,24 +122,35 @@ public class PresentationPicturesProzessor {
             default ->
               "";
           };
+          m_logger.log(Level.FINE, "File processed:{0}", line);
           fileNames[counter++] = line;
+          fileEntries.put(pictureTakenMillis, line);
         } catch (JpegProcessingException
-            | PngProcessingException
-            | TiffProcessingException
-            | IOException
-            | MetadataException ex) {
+                | PngProcessingException
+                | TiffProcessingException
+                | IOException
+                | MetadataException ex) {
           m_logger.log(Level.SEVERE,
-              "Exception loading image {0} : {1}", new Object[]{ex.getClass().getName(), ex.getLocalizedMessage()});
+                  "Exception loading image {0} : {1}", new Object[]{
+                    line,
+                    ex.getLocalizedMessage()});
         }
       }
-      Arrays.sort(fileNames);
-      for (String name : fileNames)
-        writeLine(writer, name);
+
+      if (!byDate) {
+        Arrays.sort(fileNames);
+        for (String name : fileNames)
+          writeLine(writer, name);
+      } else {
+        SortedSet<Long> keys = new TreeSet(fileEntries.keySet());
+        for (Long key : keys)
+          writeLine(writer, (String) fileEntries.get(key));
+      }
       writer.flush();
       writer.close();
     } catch (IOException ex) {
       ZxErrorDialog.displaySimpleErrorMessage(m_uiClass,
-          "createPresentationPictures.sequenceFile.errorWriting.message", ex);
+              "createPresentationPictures.sequenceFile.errorWriting.message", ex);
     }
   }
 
@@ -146,33 +172,33 @@ public class PresentationPicturesProzessor {
    * @throws IOException
    */
   public void processSequenceFile(
-      String sequenceFileName,
-      String exportFolder,
-      String fileNameHead,
-      int counterStart, int counterLength,
-      String extension,
-      int resX, int resY,
-      String description)
-      throws FileNotFoundException, IOException {
+          String sequenceFileName,
+          String exportFolder,
+          String fileNameHead,
+          int counterStart, int counterLength,
+          String extension,
+          int resX, int resY,
+          String description)
+          throws FileNotFoundException, IOException {
     File sequenceFile = new File(sequenceFileName);
 //    String path = sequenceFile.getPath();
 
     BufferedReader sequenceFileReader
-        = new BufferedReader(new FileReader(sequenceFile));
+            = new BufferedReader(new FileReader(sequenceFile));
     int lastSlash = sequenceFileName.lastIndexOf("/");
     String path = sequenceFileName.substring(0, lastSlash);
     String formatString = "%s/%s%0" + counterLength + "d.%s";
 
     String line;
     m_workFileName = System.getProperty("user.home")
-        + File.separator + ".wrkImage.jpeg";
+            + File.separator + ".wrkImage.jpeg";
     do {
       line = sequenceFileReader.readLine();
       if (line == null || line.startsWith("!"))
         continue;
       m_logger.log(Level.FINE, "Processing: {0}", line);
       String exportFileName = String.format(formatString, exportFolder,
-          fileNameHead, counterStart++, extension, resX, resY);
+              fileNameHead, counterStart++, extension, resX, resY);
       int slash = line.indexOf("/");         // Seperate the orientation character
       String orientation = null;             // and remove the flag from the filename
       if (slash >= 0) {
@@ -180,10 +206,10 @@ public class PresentationPicturesProzessor {
         line = line.substring(0, slash);
       }
       createPicture(path + "/" + line, exportFileName, orientation,
-          resX, resY, description);
+              resX, resY, description);
     } while (line != null);
     ZxMessageDialog.displayMessage(m_uiClass,
-        "createPresentationPictures.confirmation.text");
+            "createPresentationPictures.confirmation.text");
   }
 
   /**
@@ -196,7 +222,7 @@ public class PresentationPicturesProzessor {
    * @param resY resolution for the target image in y
    */
   private void createPicture(String input, String export, String orientation,
-      int resX, int resY, String description) throws IOException {
+          int resX, int resY, String description) throws IOException {
     float scale;                  // Factor to calculate the size of the target image
     int targetX, targetY;         // size of the target image
 
@@ -227,7 +253,7 @@ public class PresentationPicturesProzessor {
     }
     m_logger.log(Level.FINER, "Scale: {0}  targetX {1}  TargetY {2}", new Object[]{scale, targetX, targetY});
     BufferedImage exportImage = new BufferedImage(targetX, targetY,
-        BufferedImage.TYPE_USHORT_565_RGB);
+            BufferedImage.TYPE_USHORT_565_RGB);
 
     AffineTransform transform = new AffineTransform();
     if (orientation != null) {
@@ -250,9 +276,9 @@ public class PresentationPicturesProzessor {
         rotateIndex = 0;
       if (rotateIndex != 0)
         transform.quadrantRotate(
-            //            rotateIndex, sourceImageHeight / 2, sourceImageWidth / 2);
-            //            rotateIndex, sourceImageWidth / 2, sourceImageHeight / 2);
-            rotateIndex, rotaPointX, rotaPointY);
+                //            rotateIndex, sourceImageHeight / 2, sourceImageWidth / 2);
+                //            rotateIndex, sourceImageWidth / 2, sourceImageHeight / 2);
+                rotateIndex, rotaPointX, rotaPointY);
     }
     transform.scale(scale, scale);
     Graphics2D g2d = exportImage.createGraphics();
@@ -260,7 +286,7 @@ public class PresentationPicturesProzessor {
 
 // Write with ImageIO to a work-file
     File workFile = new File(m_workFileName);
-    try ( ImageOutputStream ios = ImageIO.createImageOutputStream(workFile)) {
+    try (ImageOutputStream ios = ImageIO.createImageOutputStream(workFile)) {
       ImageIO.write(exportImage, "JPEG", ios);
     }
 
@@ -268,7 +294,7 @@ public class PresentationPicturesProzessor {
     TiffImageMetadata exifData;
     try {
       JpegImageMetadata sourceMetadata
-          = (JpegImageMetadata) Imaging.getMetadata(inputFile);
+              = (JpegImageMetadata) Imaging.getMetadata(inputFile);
       exifData = sourceMetadata.getExif();
     } catch (ImageReadException ex) {
       m_logger.log(Level.SEVERE, "Error reading Metadata from {0}", inputFile);
@@ -278,14 +304,14 @@ public class PresentationPicturesProzessor {
     try {
       File exportFile = new File(export);
       BufferedOutputStream bos = new BufferedOutputStream(
-          new FileOutputStream(exportFile));
+              new FileOutputStream(exportFile));
       TiffOutputSet tos = exifData.getOutputSet();       // exif Data of the input file
 
 // The set has the old orientation value in EXIF, need to update it to 1
       TiffOutputDirectory rootDirectory = tos.getOrCreateRootDirectory();
       rootDirectory.removeField(TiffTagConstants.TIFF_TAG_ORIENTATION);
       rootDirectory.add(TiffTagConstants.TIFF_TAG_ORIENTATION,
-          (short) TiffTagConstants.ORIENTATION_VALUE_HORIZONTAL_NORMAL);
+              (short) TiffTagConstants.ORIENTATION_VALUE_HORIZONTAL_NORMAL);
       if (description != null && description.length() > 0) {
         rootDirectory.removeField(TiffTagConstants.TIFF_TAG_IMAGE_DESCRIPTION);
         rootDirectory.add(TiffTagConstants.TIFF_TAG_IMAGE_DESCRIPTION, description);
@@ -311,5 +337,33 @@ public class PresentationPicturesProzessor {
   private void writeLine(BufferedWriter writer, String line) throws IOException {
     writer.write(line);
     writer.newLine();
+  }
+
+  /**
+   * Stores some details of a file for further processing
+   */
+  private class FileDetails {
+
+    private String m_fileName;
+    private String m_orientation;
+    private long m_takenTimeMillis;      // From Exif Data for sorting the files
+
+    FileDetails(String fileName, String orientation, long takenTimeMillis) {
+      m_fileName = fileName;
+      m_orientation = orientation;
+      m_takenTimeMillis = takenTimeMillis;
+    }
+
+    public String getFileName() {
+      return m_fileName;
+    }
+
+    public String getOrientation() {
+      return m_orientation;
+    }
+
+    public long getTakenTimeMillis() {
+      return m_takenTimeMillis;
+    }
   }
 }

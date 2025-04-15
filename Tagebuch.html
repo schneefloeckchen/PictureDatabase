@@ -28,7 +28,31 @@
 
         </ol>
         
-        <h1>Logbuch</h1>
+	<h1>Logbuch</h1>
+	
+		<h2>Memory Leak</h2>
+       <p>Nov 24 entdeckt, tritt erst nach l&auml;ngerem import auf. Steps:</p>
+        <ol>
+			<li>Test Umgebung, skript zum l&ouml;schen der Dev Datenbank, dann import mit dem Verzeichnis, in dem Klara iPhone Bilder liegen (20GB).</li>  
+			<li>Nachdem alle Files aus dem import in einem Verzeichnis liegen, gibt es einen:<br>
+			 java.lang.IllegalArgumentException: Self-suppression not permitted Fehler. <br>
+In Bugdatabse ist Eintrag dazu, works as designed. Ist spezielles Verhalten in einem try mit resource, die einen auto-close beinhaltet.	<a href="https://bugs.java.com/bugdatabase/view_bug?bug_id=8317229">https://bugs.java.com/bugdatabase/view_bug?bug_id=8317229</a>	</li>
+			<li>Baue extra Testcase, der 20000 oder mehr Pictures (ohne datei erzeugt / Dummies) in ein oder mehrere Folder packt. Funktioniert soweit.</li>
+			<li>Da auch der obige Fehler von vollgelaufenem Heap angekündigt wird, suche weiter im gc. In 
+			<a href="https://www.baeldung.com/jvm-garbage-collectors">
+			https://www.baeldung.com/jvm-garbage-collectors</a>
+			 Intro dazu, die gcs werden per aufruf parameter ausgewaehlt und ggf. Konfiguriert. Testing the different GCs, switches are for the java VM, addes to the run properties in NB</li>
+			 <ol>
+			 	<li>-XX:+UseZGC - still memory leaks </li>
+			 	<li>-XX:+UseParallelGC - memory leaks</li>
+			 	<li>-XX:+UseParallelGC -Xmx12192m -- lis working, used memory till ca 7.xx GB, is deleting objects, shows expected behavior.</li>
+			 </ol>
+			 <li>Nicht gc Problem, da die Pic Objecte and dir PicDir angebunden sind, bleiben die im Speicher bis das PicDir geloescfht wird.</li>
+			 <li>Neuer Anlauf: PersistentSet! </li>
+        </ol>
+        
+
+   <h1>Logbuch Migration</h1>
         <p>Dokumentation der Schritte, das Original, aus dem kopiert wird, ist in JavaNB018/PictureDatabaseV2, bisher sind
             die OR-Mapper sowie das import-tool (pictures.tools.MediumLoadProzessor) mit junit5 Tests getestet.(</p>
         <h2>Migrate MaintainPictureMediumUI</h2>

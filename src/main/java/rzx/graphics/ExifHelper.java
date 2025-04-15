@@ -90,10 +90,11 @@ public class ExifHelper {
 
   public int getPictureOrientation() throws MetadataException {
     loadExifIFD0Directory();
-    if (m_exifIFD0Directory != null)
-      return m_exifIFD0Directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
-    else
-      return -1;
+    if (m_exifIFD0Directory != null
+      && m_exifIFD0Directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION))
+        return m_exifIFD0Directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+      else
+        return -1;
   }
 
   public String getCameraMaker() {
@@ -187,57 +188,57 @@ public class ExifHelper {
   private void loadJepegDirectory() {
     if (loadOk(m_jepegDirectory))
       m_jepegDirectory
-          = m_metadata.getFirstDirectoryOfType(JpegDirectory.class);
+              = m_metadata.getFirstDirectoryOfType(JpegDirectory.class);
 //        m_jepegDirectory = (JpegDirectory) loadDirectory(m_jepegDirectory, JpegDirectory.class);
   }
 
   private void loadExifIFD0Directory() {
     if (loadOk(m_exifIFD0Directory))
       m_exifIFD0Directory
-          = m_metadata.getFirstDirectoryOfType(com.drew.metadata.exif.ExifIFD0Directory.class);
+              = m_metadata.getFirstDirectoryOfType(com.drew.metadata.exif.ExifIFD0Directory.class);
   }
 
   private void loadExifSubIFDDirectory() {
     if (loadOk(m_exifSubIFDDirectory))
       m_exifSubIFDDirectory
-          = m_metadata.getFirstDirectoryOfType(com.drew.metadata.exif.ExifSubIFDDirectory.class);
+              = m_metadata.getFirstDirectoryOfType(com.drew.metadata.exif.ExifSubIFDDirectory.class);
   }
 
   private void loadExifInteropDirectory() {
     if (loadOk(m_exifInteropDirectory))
       m_exifInteropDirectory
-          = m_metadata.getFirstDirectoryOfType(com.drew.metadata.exif.ExifInteropDirectory.class);
+              = m_metadata.getFirstDirectoryOfType(com.drew.metadata.exif.ExifInteropDirectory.class);
   }
 
   private void loadCanonMakernoteDirectory() {
     if (loadOk(m_canonMakernoteDirectory))
       m_canonMakernoteDirectory
-          = m_metadata.getFirstDirectoryOfType(com.drew.metadata.exif.makernotes.CanonMakernoteDirectory.class);
+              = m_metadata.getFirstDirectoryOfType(com.drew.metadata.exif.makernotes.CanonMakernoteDirectory.class);
 
   }
 
   private void loadGpsDirectory() {
     if (loadOk(m_gpsDirectory))
       m_gpsDirectory
-          = m_metadata.getFirstDirectoryOfType(com.drew.metadata.exif.GpsDirectory.class);
+              = m_metadata.getFirstDirectoryOfType(com.drew.metadata.exif.GpsDirectory.class);
   }
 
   private void loadExifThumbnailDirectory() {
     if (loadOk(m_exifThumbnailDirectory))
       m_exifThumbnailDirectory
-          = m_metadata.getFirstDirectoryOfType(com.drew.metadata.exif.ExifThumbnailDirectory.class);
+              = m_metadata.getFirstDirectoryOfType(com.drew.metadata.exif.ExifThumbnailDirectory.class);
   }
 
   private void loadXmpDirectory() {
     if (loadOk(m_xmpDirectory))
       m_xmpDirectory
-          = m_metadata.getFirstDirectoryOfType(com.drew.metadata.xmp.XmpDirectory.class);
+              = m_metadata.getFirstDirectoryOfType(com.drew.metadata.xmp.XmpDirectory.class);
   }
 
   private void loadHuffmanTablesDirectory() {
     if (loadOk(m_huffmanTablesDirectory))
       m_huffmanTablesDirectory
-          = m_metadata.getFirstDirectoryOfType(com.drew.metadata.jpeg.HuffmanTablesDirectory.class);
+              = m_metadata.getFirstDirectoryOfType(com.drew.metadata.jpeg.HuffmanTablesDirectory.class);
   }
 
 //    private void loadFileMetadataDirectory() {

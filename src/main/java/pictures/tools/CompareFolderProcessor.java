@@ -26,6 +26,8 @@ import rzx.ui.ZxBaseROTableModel;
  * the data from the storage folder are stored in a Map, where the fileName
  * is the key and the filename, folder name and the timeTaken (in seconds
  * since 1974 are the values - stored in an imageObject
+ * 
+ * Note: It is not compared with the data from the database.
  *
  * @author rene
  *

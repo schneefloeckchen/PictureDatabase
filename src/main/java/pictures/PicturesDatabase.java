@@ -98,6 +98,8 @@ and Maven finished. Tagged as 1.5. tar sicherung per skript erstellt
 24.4.24 Migration to Java 21, JPA and Hibernate 6.2.6.final) abgeschlossen,
 als 2.0 mit allen dependencies produktiv gesetzt. With 2.0 tagged, commouued and
 pushed to remote
+XX
+
 
 
 Globale ToDos:
@@ -110,7 +112,7 @@ really an improvement.
 @todo GLOBAL -- remove deprecated methods and classes (multithreading framework in ZxLogpanel
 @todo Idea -- Docker Task??
 @todo On dialog to create the presentation images allow to edit the textfields,
-right now data are only written but now read.
+right now data are only written but not read.
 @todo add HP 10 Tablet to the list of possible devices (Presentation pictures)
 @todo optimize the start for the folder search for the presentation pics, curr. points to the test area
 @todo finish Multithreading in databaseChecker, so that the result table display the progress of tje validation

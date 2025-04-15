@@ -63,7 +63,7 @@ public class MaintainPictureDialog extends BaseDialogUI implements MouseListener
   private ZxCheckBox mc_noTransformation = null;      // Controls if the m_currentPicture shall be rotated (using orientation) or not.
 
   private JPopupMenu mu_treePopupMenu = new JPopupMenu("Additional Actions");  // @todo move to ressource
-  private JMenuItem mu_listDuplicates = new JMenuItem("List Duplicates");
+  private JMenuItem mu_listDuplicates = new JMenuItem("*List Duplicates");
 
   // Components for the WEST Panel (Filestructure of the storage Medium)
 //    private ZxTreeTable mu_storageMediumStructure = new ZxTreeTable();

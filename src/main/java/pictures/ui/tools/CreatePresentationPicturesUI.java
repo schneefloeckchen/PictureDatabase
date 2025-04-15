@@ -105,12 +105,12 @@ public class CreatePresentationPicturesUI extends JDialog implements ActionListe
     JPanel inputPanel = new JPanel(leftLayout);
 //    inputPanel.setLayout(leftLayout);
     mu_sortByFileNameRadioButton = m_uiElementFactory.createRadioButton("sortByName");
-    mu_sortByFileNameRadioButton.setSelected(true);
     mu_sortByFileDateRadioButton = m_uiElementFactory.createRadioButton("sortByDate");
     ButtonGroup defineSortItemRadioButtonGroup = new ButtonGroup();
     defineSortItemRadioButtonGroup.add(mu_sortByFileNameRadioButton);
     defineSortItemRadioButtonGroup.add(mu_sortByFileDateRadioButton);
-    mu_sortByFileDateRadioButton.setEnabled(false);
+    mu_sortByFileDateRadioButton.setSelected(true);
+    mu_sortByFileDateRadioButton.setEnabled(true);
 
     mu_createSequenceFileButton = m_uiElementFactory.createButton("createSequence");
     mu_selectFolderButton = m_uiElementFactory.createButton("selectFolder");
@@ -257,7 +257,8 @@ public class CreatePresentationPicturesUI extends JDialog implements ActionListe
   }
 
   private void performCreateSequenceFile(File sequenceFile) {
-    m_controller.createSequenceFile(sequenceFile, m_inputFolder);
+    m_controller.createSequenceFile(sequenceFile, m_inputFolder,
+            mu_sortByFileDateRadioButton.isSelected());
   }
 
   private void performSelectExportFolder() {

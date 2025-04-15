@@ -106,8 +106,8 @@ public class ToolsUI extends BaseDialogUI {
     mu_checkDatabaseButton = mu_row2ButtonPanel.createAndAddButton("checkDatabase");
     mu_displayDatabaseRecordButton = mu_row2ButtonPanel.createAndAddButton("displayRecord");
     mu_row2ButtonPanel.add(mu_cancelButton);
-    
-    mu_compareFolderButton = mu_row3ButtonPanel.createAndAddButton ("compareFolder");
+
+    mu_compareFolderButton = mu_row3ButtonPanel.createAndAddButton("compareFolder");
     mu_testButton = mu_row3ButtonPanel.createAndAddButton("testButton");
     BoxLayout buttonLayout = new BoxLayout(mu_buttonPanel, BoxLayout.Y_AXIS);
 //    mu_buttonPanel.setLayout(new FlowLayout());
@@ -121,9 +121,9 @@ public class ToolsUI extends BaseDialogUI {
     finish();
     mu_logPanel.write("Started");
     String javaVersion = System.getProperty("java.vm.name") + "  ( "
-        + System.getProperty("java.vm.version") + " / "
-        + System.getProperty("java.vm.info") + " ) Version: "
-        + System.getProperty("java.version");
+            + System.getProperty("java.vm.version") + " / "
+            + System.getProperty("java.vm.info") + " ) Version: "
+            + System.getProperty("java.version");
     mu_logPanel.write(javaVersion);
     String hibernateVersion = org.hibernate.Version.getVersionString();
     mu_logPanel.write("Hibernate Version is: " + hibernateVersion);
@@ -147,7 +147,7 @@ public class ToolsUI extends BaseDialogUI {
       LoadPictureTester tester = new LoadPictureTester(this, mu_logPanel);
       tester.listExifData(file);
     }
- }
+  }
 
   private void performReadExifData() {
     mu_logPanel.write("Reading EXIF Data");
@@ -156,7 +156,7 @@ public class ToolsUI extends BaseDialogUI {
       ExifDataReader reader = new ExifDataReader(this, mu_logPanel);
       reader.readExifData(file);
     }
- }
+  }
 
   private void performRemoveStorageMedia() {
     mu_logPanel.write("Remove Storage Medium");
@@ -253,7 +253,7 @@ public class ToolsUI extends BaseDialogUI {
 
   private File selectFile() {
     JFileChooser chooser = new JFileChooser(
-        "/home/rene/technik/JavaDevNB124/PicturesDatabase/testData");
+            "/home/rene/technik/JavaDevNB124/PicturesDatabase/testData");
     chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
     chooser.setVisible(true);
     if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -300,7 +300,7 @@ public class ToolsUI extends BaseDialogUI {
     m_logger.fine("Loading database record");
     DisplayRecord record = new DisplayRecord();
     record.load(mu_selectTableCombobox.getSelectedKey(),
-        mu_IDField.getInt());
+            mu_IDField.getInt());
   }
 
   /**
@@ -334,7 +334,7 @@ public class ToolsUI extends BaseDialogUI {
     else if (mu_displayPictureDataUsingHibernate.isSelected())
       processor.loadByHibernate(id);
   }
-  
+
   private void performCompareFolder() {
     CompareFolderUI dialog = new CompareFolderUI();
     dialog.setVisible(true);
@@ -382,10 +382,9 @@ public class ToolsUI extends BaseDialogUI {
       performCreatePresentationPictures();
     else if (src == mu_compareFolderButton)
       performCompareFolder();
-    else if (src == mu_testButton) {
+    else if (src == mu_testButton)
       // zur Zeit exception dialog fangen
       ZxMessageDialog.displayExceptionMessage(this, "test.exception", new SQLException("Test Error in Database"));
-    }
     else
       mu_logPanel.write("Not yet implemented");
   }
