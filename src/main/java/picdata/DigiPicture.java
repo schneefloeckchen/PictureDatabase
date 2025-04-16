@@ -357,7 +357,6 @@ public class DigiPicture extends PicDataBaseClass {
         m_logger.log(Level.FINE, "Blob Size is: {0}", thumb.length());
     } else
       m_logger.log(Level.FINE, "image = null for: {0}", fileName);
-
   }
 
   public static DigiPicture getById(long id) {

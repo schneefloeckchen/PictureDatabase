@@ -104,6 +104,11 @@
       <version>1.3</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.openjdk.jol</groupId>
+      <artifactId>jol-core</artifactId>
+      <version>0.17</version>
+    </dependency>
   </dependencies>
   <!-- infos about skipping test https://mkyong.com/maven/how-to-skip-maven-unit-test/ -->
   <properties>

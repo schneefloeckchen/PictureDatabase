@@ -54,6 +54,8 @@ import rzx.ui.ZxMessageDialog;
  * /U rotate by 180 degrees.
  *
  * @author rene
+ * 
+ * 15.4.25 RZ finished, sort by photo taken date added
  */
 public class PresentationPicturesProzessor {
 

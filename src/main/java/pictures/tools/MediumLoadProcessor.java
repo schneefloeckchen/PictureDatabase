@@ -9,6 +9,7 @@ import jakarta.persistence.Query;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
+import java.lang.instrument.Instrumentation;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,8 @@ import picdata.PictureMedium;
 import picdata.Searcher;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import org.openjdk.jol.info.ClassLayout;
+import org.openjdk.jol.vm.VM;
 import rzx.ui.ZxErrorDialog;
 
 /**
@@ -158,6 +161,10 @@ public class MediumLoadProcessor implements Runnable {
               m_statisticCollector.startCompress();
               picture.pushEntityManagerToSearcher(entityManager);
               picture.load(file);        // Full load now, create thumbnail
+              long sizeOfPicture = VM.current().sizeOf(picture);
+              String inst = ClassLayout.parseInstance(picture).toPrintable();
+              System.out.println("Classloyout is: "+inst);
+              System.out.println("   size of picture: "+sizeOfPicture);
               m_statisticCollector.endCompress();
               picture.addDirectory(directory);     // yes
               m_statisticCollector.startDBSave();
@@ -169,6 +176,13 @@ public class MediumLoadProcessor implements Runnable {
               m_statisticCollector.addThumbSize(picture.getThumbSize());
             } else {                        // already there, so add this directory to the
               directory.addPicture(pic);
+              
+//  just to measure memory footprint
+//              m_logger.fine("Size of picture-object is "+Instrumentation.);
+              long sizeOfPic = VM.current().sizeOf(pic);
+              long sizeOfPicture = VM.current().sizeOf(picture);
+              System.out.println(".. "+VM.current().details());
+              System.out.println("Size of pic: "+sizeOfPic + "   size of picture: "+sizeOfPicture);
               m_statisticCollector.countDuplicate(picture.getFileName());
               directoryToUpdate = true;
             }
