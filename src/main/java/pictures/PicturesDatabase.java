@@ -98,7 +98,17 @@ and Maven finished. Tagged as 1.5. tar sicherung per skript erstellt
 24.4.24 Migration to Java 21, JPA and Hibernate 6.2.6.final) abgeschlossen,
 als 2.0 mit allen dependencies produktiv gesetzt. With 2.0 tagged, commouued and
 pushed to remote
-XX
+28.6.25 als 2.1 produktiv gesetzt. Memory-Leak correkted by introducing DigiPictureFctory. A lot of
+JUnit Tests added. Open: Tag in git and push to github
+
+2.2 Planung: Minor bugfixes, Cleanup, move to Java 23 or 24, move to latest Java. Keep hibernate Version, Move to latest Netbeans
+bugfixes: 
+(1)  2 errormessages about missing entries in hib configuration
+(2)  Cannot start maintain DVD from first Dialog (adding DVDs)
+(3)  Optimize JUnit Report (Surefire???)
+(ff) What pops up while using it
+
+
 
 
 

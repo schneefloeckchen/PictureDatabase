@@ -241,7 +241,7 @@ public class DigiPicture extends PicDataBaseClass {
   }
 
   public void setWidth(int width) {
-    this.height = width;
+    this.width = width;
   }
 
   public Set<PicDirectory> getDirectories() {
@@ -348,7 +348,8 @@ public class DigiPicture extends PicDataBaseClass {
 
 // Create blob, need orientation from exif, therefore blob created at the end
     if (m_image != null) {
-      thumb = ZxBufferedImage.createBlobForThumbNail(m_image, THUMB_SIZE, thumbFormat, orientation);
+      thumb = ZxBufferedImage.createBlobForThumbNail(
+              m_image, THUMB_SIZE, thumbFormat, orientation);
       if (thumb == null) {
         m_logger.fine("Thumb is null");
         StatisticCollector.getInstance().addError(fileName, "Unknown",

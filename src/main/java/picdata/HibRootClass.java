@@ -15,6 +15,7 @@ import jakarta.persistence.EntityManager;
 //import org.hibernate.Session;
 //import org.hibernate.Transaction;
 import java.util.logging.Logger;
+import rzx.util.StringHelper;
 
 /**
  *
@@ -51,8 +52,9 @@ public abstract class HibRootClass implements Serializable {
   }
 
   protected String trimToLength(String in, int length) {
-    String sTmp = in.length() < length ? in : in.substring(0, length - 1);
-    return sTmp.trim();
+//    String sTmp = in.length() < length ? in : in.substring(0, length - 1);
+//    return sTmp.trim();
+    return StringHelper.trimToLength(in, length);
   }
 
   // Updates the entry within a session

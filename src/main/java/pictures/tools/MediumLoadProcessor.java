@@ -9,7 +9,6 @@ import jakarta.persistence.Query;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +20,6 @@ import picdata.PictureMedium;
 import picdata.Searcher;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import org.openjdk.jol.info.ClassLayout;
-import org.openjdk.jol.vm.VM;
 import rzx.ui.ZxErrorDialog;
 
 /**
@@ -38,6 +35,7 @@ import rzx.ui.ZxErrorDialog;
  *
  * 31.10.2023 Migrating to Java 19 and JPA. Replace hibernates proprietary
  * Session mechanism by JPAs EntityManager.
+ * 11.5.25 RZ / Migrate to DigiPictureFactory
  */
 public class MediumLoadProcessor implements Runnable {
 
@@ -72,6 +70,10 @@ public class MediumLoadProcessor implements Runnable {
 //  }
 //
   public int process(File folder) {
+//    System.out.println(">> LOGGER IS "+m_logger.getName());
+//    m_logger.setLevel(Level.SEVERE);
+//    System.out.println(">> LOGGER LEVEL IS "+
+//            m_logger.getLevel().getName());
     if (m_medium == null)
       if (m_inTest)
         System.out.println("MediumLoadProcessor -- No medium loaded");
@@ -81,20 +83,20 @@ public class MediumLoadProcessor implements Runnable {
       m_statisticCollector.reset();
       m_statisticCollector.startExecution();
       executeOnDirectory(folder, null);                // during the import operation
-      try {                    // try to close any more open session
-//RZ        Session openSession = PicHibernateUtil.getSessionFactory().getCurrentSession();
-//RZ        openSession.close();
-      } catch (HibernateException ex) {
-        m_logger.info("MediumLoadProcessor -- No open session found");
-      }
+//      try {                    // try to close any more open session
+      ////RZ        Session openSession = PicHibernateUtil.getSessionFactory().getCurrentSession();
+////RZ        openSession.close();
+//      } catch (HibernateException ex) {
+//        m_logger.info("MediumLoadProcessor -- No open session found");
+//      }
       String numberOfRoots;
       try (EntityManager em = PicJPAUtil.getInstance().createEntityManager()) {
         Query query = em.createQuery(
-            "select count(p) from PicDirectory p where p.medium.id=" + m_medium.getId() + " and p.parent is null");
+                "select count(p) from PicDirectory p where p.medium.id=" + m_medium.getId() + " and p.parent is null");
 
         numberOfRoots = query.getSingleResult().toString();
         m_logger.log(Level.FINE,
-            "MediumLoadProzessor -- numberOfRoot: {0}", numberOfRoots);
+                "MediumLoadProzessor -- numberOfRoot: {0}", numberOfRoots);
       }
       if (m_inTest)
         return Integer.parseInt(numberOfRoots);
@@ -137,101 +139,118 @@ public class MediumLoadProcessor implements Runnable {
     m_statisticCollector.startDBSave();
     directory.update();      // Create in database, use own transaction
     m_statisticCollector.endDBsave();
+
+    List<File> directoryList = new ArrayList<>();   // Collect folder for later processing
     File[] files = folder.listFiles();
+
 // Use own entityManager for working on the pictures.
-    try (EntityManager entityManager = PicJPAUtil.getInstance().createEntityManager()) {
+// One EntityManager per folder, but one Transaction per rund
+    try (EntityManager entityManager
+            = PicJPAUtil.getInstance().createEntityManager()) {
       searcher.setEntityManager(entityManager);
-      entityManager.getTransaction().begin();
-      List<File> directoryList = new ArrayList<>();
+      DigiPictureFactory digiPictureFactory = new DigiPictureFactory();
+      PicDirectory mergedDirectory
+              = entityManager.merge(directory);
       for (File file : files) {
+        entityManager.getTransaction().begin();
         m_logger.log(Level.FINE, "Working on file: {0}", file.getName());
         if (file.isDirectory())
 //          executeOnDirectory(file, directory); //              directory.refresh();
           directoryList.add(file);        // Save for later processing, after closing this transaction
-        else {
-          DigiPicture picture = new DigiPicture();
+        else
           try {
-            picture.preLoad(file);
-            m_statisticCollector.startDBsearch();
-            DigiPicture pic = searcher.searchPictureByNameAndMilis(
-                picture.getFileName(),
-                picture.getPictureTakenMilis());
-            m_statisticCollector.endDBsearch();
-            if (pic == null) {             // check, if copy of picture is already in DB
-              m_statisticCollector.startCompress();
-              picture.pushEntityManagerToSearcher(entityManager);
-              picture.load(file);        // Full load now, create thumbnail
-              long sizeOfPicture = VM.current().sizeOf(picture);
-              String inst = ClassLayout.parseInstance(picture).toPrintable();
-              System.out.println("Classloyout is: "+inst);
-              System.out.println("   size of picture: "+sizeOfPicture);
-              m_statisticCollector.endCompress();
-              picture.addDirectory(directory);     // yes
-              m_statisticCollector.startDBSave();
-              m_logger.log(Level.FINE, "Saving -- {0}", picture.getFileName());
-//              entityManager.persist(picture);
-              picture.persist(entityManager);    // persis the new picture and probably also a new
-              m_statisticCollector.endDBsave();   // Camera object
-              m_statisticCollector.countPicture();
-              m_statisticCollector.addThumbSize(picture.getThumbSize());
-            } else {                        // already there, so add this directory to the
-              directory.addPicture(pic);
-              
-//  just to measure memory footprint
-//              m_logger.fine("Size of picture-object is "+Instrumentation.);
-              long sizeOfPic = VM.current().sizeOf(pic);
-              long sizeOfPicture = VM.current().sizeOf(picture);
-              System.out.println(".. "+VM.current().details());
-              System.out.println("Size of pic: "+sizeOfPic + "   size of picture: "+sizeOfPicture);
-              m_statisticCollector.countDuplicate(picture.getFileName());
-              directoryToUpdate = true;
-            }
-          } catch (JpegProcessingException ex) {
-            m_statisticCollector.addError(file.getName(), fullDirectoryName, "JPEG Processing error");
-            log("JPEG Processing Error: " + ex.getLocalizedMessage());
-          } catch (IOException ex) {
-            m_statisticCollector.addError(file.getName(), fullDirectoryName, "I/O error");
-            log("IO Error: " + ex.getLocalizedMessage());
-          } catch (SQLException ex) {
-            m_statisticCollector.addError(file.getName(), fullDirectoryName, "SQL Processing error");
-            log("SQL Processing Error: " + ex.getLocalizedMessage());
-          } catch (TiffProcessingException ex) {
-            m_statisticCollector.addError(file.getName(), fullDirectoryName, "TIFF Processing error");
-            log("TIFF Processing Error: " + ex.getLocalizedMessage());
-          } catch (PngProcessingException ex) {
-            m_statisticCollector.addError(file.getName(), fullDirectoryName, "PNG Processing error");
-            log("Png Processing Error: " + ex.getLocalizedMessage());
-          }
+          digiPictureFactory.loadImageFile(file);
+          m_statisticCollector.startDBsearch();
+          DigiPicture pic = searcher.searchPictureByNameAndMilis(
+                  digiPictureFactory.getFileName(),
+                  digiPictureFactory.getPictureTakenMillis());
+          m_statisticCollector.endDBsearch();
+          if (pic == null) {             // check, if copy of picture is already in DB
+            m_statisticCollector.startCompress();
+            pic = digiPictureFactory.createDigiPicture();
+            pic.pushEntityManagerToSearcher(entityManager);
+            m_statisticCollector.endCompress();
+            pic.addDirectory(mergedDirectory);     // yes
+            m_statisticCollector.startDBSave();
+            m_logger.log(Level.FINE, "Saving -- {0}", pic.getFileName());
+            pic.persist(entityManager);    // persis the new picture and probably also a new
+            m_statisticCollector.endDBsave();   // Camera object
+            m_statisticCollector.countPicture();
+            m_statisticCollector.addThumbSize(pic.getThumbSize());
+          } else {                        // already there, so add this directory to the
+            mergedDirectory.addPicture(entityManager.merge(pic));    // move the picture found into the transaction
+            m_statisticCollector.countDuplicate(pic.getFileName());
+            directoryToUpdate = true;
+          }  // @todo cleanup exeeption froliferation 
+        } catch (JpegProcessingException ex) {
+          m_statisticCollector.addError(file.getName(), fullDirectoryName, "JPEG Processing error");
+          log("JPEG Processing Error: " + ex.getLocalizedMessage());
+        } catch (IOException ex) {
+          m_statisticCollector.addError(file.getName(), fullDirectoryName, "I/O error");
+          log("IO Error: " + ex.getLocalizedMessage());
+        } catch (SQLException ex) {
+          m_statisticCollector.addError(file.getName(), fullDirectoryName, "SQL Processing error");
+          log("SQL Processing Error: " + ex.getLocalizedMessage());
+        } catch (TiffProcessingException ex) {
+          m_statisticCollector.addError(file.getName(), fullDirectoryName, "TIFF Processing error");
+          log("TIFF Processing Error: " + ex.getLocalizedMessage());
+        } catch (PngProcessingException ex) {
+          m_statisticCollector.addError(file.getName(), fullDirectoryName, "PNG Processing error");
+          log("Png Processing Error: " + ex.getLocalizedMessage());
+        } catch (Exception ex) {
+          m_statisticCollector.addError(file.getName(), fullDirectoryName,
+                  "General Processing error -> " + ex.getLocalizedMessage());
+          log("General Processing Error: " + ex.getLocalizedMessage());
         }
-        if (!m_runStatus) {
-          updateDirectory(directory, directoryToUpdate, entityManager);
-          entityManager.getTransaction().commit();
-          return;
+        if (!m_runStatus) {     // Update latest version of directory before thread stops
+          updateDirectory(mergedDirectory, directoryToUpdate, entityManager);
+          return;                 // Stops the thread
         }
-        updateDirectory(directory, directoryToUpdate, entityManager);
+        updateDirectory(mergedDirectory, directoryToUpdate, entityManager);
         synchronized (this) {
           while (m_suspended) try {
             wait();
           } catch (InterruptedException ex) {
           }
         }
+        entityManager.getTransaction().commit();
       }   // End of for files.. loop
-      entityManager.getTransaction().commit();
-// Now work on the saved folders
-      if (!directoryList.isEmpty())
-        for (File dir : directoryList)
-          if (dir.isDirectory())
-            executeOnDirectory(dir, directory);
-          else
-            m_logger.severe("Internal error -- Hier sollten nur directories auftauchen");
     }   // end of try
+// Now work on the saved folders
+    if (!directoryList.isEmpty())
+      for (File dir : directoryList)
+        if (dir.isDirectory())
+          executeOnDirectory(dir, directory);
+        else
+          m_logger.severe("Internal error -- Hier sollten nur directories auftauchen");
   }
 
-  private void updateDirectory(PicDirectory directory, boolean update, EntityManager em) {
+  /**
+   * This one is called from inside an transaction
+   *
+   * @param directory
+   * @param update
+   * @param em
+   */
+  private void updateDirectory(PicDirectory directory, boolean update,
+          EntityManager em) {
     if (update) {
       m_statisticCollector.startDBSave();
-      em.persist(em.merge(directory));
-      m_statisticCollector.endDBsave();
+//      em.getTransaction().begin();
+//      if (em.contains(directory)) {
+//      m_logger.fine("Update directory part of transaction");
+//      PicDirectory dir = em.merge(directory);
+      em.persist(directory);
+//      }
+//      else {
+//        m_logger.fine("Updating after merge");
+//        System.out.println(">>  Updating after merge");
+//        Object o = em.merge(directory);
+//        em.persist(o);
+//        directory = (PicDirectory)o;
+//      }
+//      em.getTransaction().commit();
+//      m_statisticCollector.endDBsave();
     }
   }
 
@@ -265,7 +284,10 @@ public class MediumLoadProcessor implements Runnable {
 //        try {
 //          log("Sending wait to the processor");
 //          m_theProcessor.wait();
-////                m_theProcessor.suspend();
+
+  
+
+  ////                m_theProcessor.suspend();
 //        } catch (InterruptedException ex) {
 //          log("InterruptedException exception caught - continue w. execution");
 //        }

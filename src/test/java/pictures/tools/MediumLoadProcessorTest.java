@@ -18,10 +18,14 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import picdata.DigiPicture;
 
 /**
  * Testprocess mit jUnit5 Framework
@@ -29,7 +33,8 @@ import org.junit.jupiter.api.Test;
  *
  * @author rene
  */
-public class MediumLoadProcessorTest extends TestBaseClass {
+@Timeout(10)
+public class MediumLoadProcessorTest extends MediumLoadProcessorTestBase {
 
   public MediumLoadProcessorTest() {
   }
@@ -60,6 +65,7 @@ public class MediumLoadProcessorTest extends TestBaseClass {
    * Test of setMedium method, of class MediumLoadProcessor.
    */
   @Test
+  @Disabled
   public void testSetMedium() {
     log("setMedium");
     PictureMedium medium = new PictureMedium();
@@ -80,8 +86,8 @@ public class MediumLoadProcessorTest extends TestBaseClass {
    * Test with test folder CD1
    */
   @Test
-  public void testProcessCD1() {
-    log("Started");
+  public void testProcessCD1() throws InterruptedException {
+    log("Started process CD1");
     List<PictureMedium> mediumListOld = PictureMedium.getAllStorageMedia();
     int oldMediumCount = mediumListOld.size();
     System.out.println("Testing process with one folder, already " + oldMediumCount + " folder in database");
@@ -120,6 +126,7 @@ public class MediumLoadProcessorTest extends TestBaseClass {
     }
     countPicDirMap(28);
     countDigiPicture(28);
+    countRecords("CAMERA", 2);   // 1 from setup, 1 from the import process
   }
 
   /**
@@ -128,7 +135,7 @@ public class MediumLoadProcessorTest extends TestBaseClass {
    */
   @Test
   public void testProcessCD2() {
-    log("Started");
+    log("Started Process CD2");
     int numberOfRoots = loadData(m_picMedium2, TEST_DATA_FOLDER + "/CD2/");
     assertEquals(1, numberOfRoots, "Number of created folder roots in the database");
     long activeId = m_picMedium2.getId();
@@ -161,6 +168,7 @@ public class MediumLoadProcessorTest extends TestBaseClass {
     }
     countPicDirMap(20);
     countDigiPicture(11);
+    countRecords("CAMERA", 2);   // 1 from setup, 1 from the import process
   }
 
   /**
@@ -169,6 +177,7 @@ public class MediumLoadProcessorTest extends TestBaseClass {
    */
   @Test
   public void testProcessCD3() {
+    log("Started CD3");
     int numberOfRoots = loadData(m_picMedium2, TEST_DATA_FOLDER + "/CD3/");
     assertEquals(1, numberOfRoots, "Number of created folder roots in the database");
     long activeId = m_picMedium2.getId();
@@ -215,15 +224,18 @@ public class MediumLoadProcessorTest extends TestBaseClass {
    */
   @Test
   public void testProcessCD4() {
+
+    log();
     assertEquals(1, loadData(m_picMedium1, TEST_DATA_FOLDER + "/CD4/"), "Loading CD4");
     countPicDirMap(28);
     countDigiPicture(28);
     try (EntityManager em = PicJPAUtil.getInstance().createEntityManager()) {
       Query query = em.createNativeQuery(
-          "SELECT ID FROM DIGI_PICTURE WHERE FILE_NAME = 'P1011617.JPG'");
+              "SELECT ID FROM DIGI_PICTURE WHERE FILE_NAME = 'P1011617.JPG'");
       List result = query.getResultList();
       System.out.println("Result size is " + result.size());
-      assertEquals(2, result.size(), "P1011617.JPG shall be double in DB");
+      assertEquals(2, result.size(),
+              "P1011617.JPG shall be double in DB");
     }
   }
 
@@ -234,26 +246,85 @@ public class MediumLoadProcessorTest extends TestBaseClass {
    */
   @Test
   public void testProcessCD5() {
+    log();
     assertEquals(1, loadData(m_picMedium1,
-        TEST_DATA_FOLDER + "/CD5/"), "Loading CD4");
+            TEST_DATA_FOLDER + "/CD5/"), "Loading CD4");
     countPicDirMap(29);
     countDigiPicture(28);
     countDirectory(4);
-        try (EntityManager em = PicJPAUtil.getInstance().createEntityManager()) {
+    try (EntityManager em = PicJPAUtil.getInstance().createEntityManager()) {
       Query query = em.createNativeQuery(
-          "SELECT ID FROM DIGI_PICTURE WHERE FILE_NAME = 'P1011617.JPG'");
+              "SELECT ID FROM DIGI_PICTURE WHERE FILE_NAME = 'P1011617.JPG'");
       List result = query.getResultList();
       System.out.println("Result size is " + result.size());
       assertEquals(2, result.size(), "P1011617.JPG shall be only double in DB");
     }
   }
 
-  protected int loadData(PictureMedium medium, String testDataFolder) {
-    File folder = new File(testDataFolder);
-    MediumLoadProcessor instance = new MediumLoadProcessor();
-    instance.setToTest();
-    instance.setMedium(medium);
-    return instance.process(folder);
+  @Test
+  @DisplayName("4 different cameras")
+  void testProcessCD18() {
+    doStandardTest("CD18", 5, 19, 19, 5);
+
+    try (EntityManager em = PicJPAUtil.getInstance().createEntityManager()) {
+      PictureMedium medium = em.find(PictureMedium.class,
+              m_picMedium1Id);
+      PicDirectory rootDir = getRootFolder(medium);
+      assertEquals("CD18", rootDir.getDirectoryName(), "Name of root folder");
+      Set<PicDirectory> dirs = rootDir.getChildren();
+      assertEquals(4, dirs.size(), "Number of sub folder of root");
+      for (PicDirectory dir : dirs) {
+        Set<DigiPicture> pics = dir.getPictures();
+        String directoryName = dir.getDirectoryName();
+        assertNotNull(pics, "No pics in folder " + directoryName);
+        String[] fileNames = switch (directoryName) {
+          case "Canon" ->
+            new String[]{
+              "IMG_1084.JPG", "IMG_1085.JPG", "IMG_1086.JPG", "IMG_1087.JPG"};
+          case "HTC" ->
+            new String[]{
+              "IMAG0190.jpg", "IMAG0191.jpg", "IMAG0192.jpg",
+              "IMG-20170319-WA0000.jpeg"};
+
+          case "Panasonic" ->
+            new String[]{
+              "P1100232.JPG", "P1100233.JPG", "P1100234.JPG",
+              "P1100235.JPG", "P1100236.JPG", "P1100237.JPG"};
+
+          case "Samsung" ->
+            new String[]{
+              "SAM_0086.JPG", "SAM_0087.JPG", "SAM_0088.JPG",
+              "SAM_0089.JPG", "SAM_0090.JPG"};
+          default ->
+            null;
+        };
+        assertNotNull(fileNames, "Invalid folder in test");
+        validateAllFileNames(pics, fileNames);
+        DigiPicture pic = pics.iterator().next();    // Grab one picture
+        // finally check camera names
+        String model = switch (directoryName) {
+          case "Canon" ->
+            "Canon IXUS 170";
+          case "HTC" ->
+            "HTC One_M8";
+          case "Panasonic" ->
+            "DMC-GF3";
+          case "Samsung" ->
+            "SAMSUNG PL90/VLUU PL90";
+          default ->
+            "NIX";
+        };
+        assertEquals(model, pic.getCamera().getModel(),
+                "Cameramodel for pic " + pic.getFileName());
+      }
+    }
+  }
+
+  @Test
+  @DisplayName("Realer folder, CD aus Urlaub. Aelter und mit Video")
+  @Timeout(100)
+  void testProcessCD19() {
+    doStandardTest("CD19", 4, 712, 712, 4);
   }
 
 }

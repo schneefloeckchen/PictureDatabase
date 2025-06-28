@@ -5,6 +5,9 @@ import bas.TestBase;
 import hib.PicJPAUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,6 +25,7 @@ public class TestBaseClass extends TestBase {
   protected PictureMedium m_picMedium1 = null;
   protected PictureMedium m_picMedium2 = null;
   protected PictureMedium m_picMedium3 = null;
+  protected long m_picMedium1Id = 0L;
   protected Camera m_camera1 = null;
 
   protected PicJPAUtil m_picJPAUtil = PicJPAUtil.getInstance();
@@ -36,6 +40,7 @@ public class TestBaseClass extends TestBase {
     m_mType3 = createMediumType(3);
     m_mType4 = createMediumType(4);
     m_picMedium1 = createPictureMedium(101, m_mType1);
+    m_picMedium1Id = m_picMedium1.getId();
     m_picMedium2 = createPictureMedium(102, m_mType1);
     m_picMedium3 = createPictureMedium(103, m_mType1);
     m_camera1 = createCamera();
@@ -169,21 +174,85 @@ public class TestBaseClass extends TestBase {
     countRecords("PIC_DIR_MAP", expectedCount);
   }
 
+  /**
+   * Test correct number of objects in PIC_DIR_MAP
+   * @param expectedCount
+   * @param folder test data folder, just for the error message
+   */
+  protected void countPicDirMap(int expectedCount, String folder) {
+    countRecords("PIC_DIR_MAP", folder, expectedCount);
+  }
+
   protected void countDigiPicture(int expectedCount) {
     countRecords("DIGI_PICTURE", expectedCount);
+  }
+
+  protected void countDigiPicture(int expectedCount, String folder) {
+    countRecords("DIGI_PICTURE", folder, expectedCount);
   }
 
   protected void countDirectory(int expectedCount) {
     countRecords("PIC_DIRECTORY", expectedCount);
   }
 
+  protected void countDirectory(int expectedCount, String folder) {
+    countRecords("PIC_DIRECTORY", folder, expectedCount);
+  }
+
   protected void countMedium(int expectedCount) {
     countRecords("PICTURE_MEDIUM", expectedCount);
   }
 
-  protected void countRecords(String tableName, int expectedCount) {
+  protected void countRecords(String tableName,
+          int expectedCount) {
     int countValue = countRecords(tableName);
-    assertEquals(expectedCount, countValue, "Expected records in " + tableName + " not found");
+    assertEquals(expectedCount, countValue, "Expected records in "
+            + tableName + " not found");
+  }
+
+  protected void countRecords(String tableName, String importFolder, 
+          int expectedCount) {
+    int countValue = countRecords(tableName);
+    assertEquals(expectedCount, countValue, "Expected records in "
+            + tableName + " not found in "+importFolder);
+  }
+
+  /**
+   * Count the number of DigiImageObjects (Records in database) where the field THUMB is null, which
+   * shows images where an thumbnail could not be created
+   *
+   * @return Number of records where no thumbnail was created
+   */
+  protected int countEmptyImages() {
+    int countValue;
+    try (EntityManager em = PicJPAUtil.getInstance().createEntityManager()) {
+      Query query = em.createNativeQuery(
+              "Select count(*) from DIGI_PICTURE WHERE THUMB IS NULL");
+      Object count = query.getSingleResult();
+      countValue = ((Long) count).intValue();
+    }
+    return countValue;
+  }
+
+  /**
+   * checks, if no empty images are there
+   */
+  protected void checkForEmptyImages() {
+    assertEquals(0, countEmptyImages(),
+            "Unexpected empty images (THUMB = null) found");
+  }
+
+  protected void countEmptyImages(int expectedCount) {
+    int countValue = countEmptyImages();
+    assertEquals(expectedCount, countValue, "Images with empty thumb entry");
+  }
+
+  protected void countCamera(int expectedCount) {
+    countRecords("CAMERA", expectedCount);
+  }
+
+  protected void countCamera(int expectedCount, String folder) {
+    countRecords("CAMERA", folder, expectedCount);
   }
 
   protected int countRecords(String tableName) {
@@ -201,6 +270,42 @@ public class TestBaseClass extends TestBase {
     return countValue;
   }
 
+  /**
+   * Method validates if in Set of DigiPictures all Filenames of a given List are used.
+   *
+   * @return
+   */
+  protected void validateAllFileNames(Set<DigiPicture> pictures,
+          String[] fileNames) {
+    Set<String> expectedFileNames
+            = new HashSet(Arrays.asList(fileNames));
+    assertEquals(pictures.size(), expectedFileNames.size(),
+            "Set of Pictures and FIlenames shall have at least the same size");
+    for (DigiPicture pic : pictures) {
+      String f = pic.getFileName();
+      if (expectedFileNames.contains(f))
+        expectedFileNames.remove(f);
+      else
+        assertFalse (true, "Filename "+f+" not found in expected list");
+    }
+    assertEquals (0, expectedFileNames.size(), "Not all Expected Filenames found");
+  }
+  
+  /**
+   * determines the root folder of the provided medium.
+   * if a root folder cannot be found null is returned
+   * If multiple roots are there the first one is returned. Should not happen.
+   * @param medium to search for the root folder
+   * @return 
+   */
+  protected PicDirectory getRootFolder(PictureMedium medium) {
+    Set<PicDirectory> dirs = medium.getPicDirectories();
+    PicDirectory root = null;
+    for (PicDirectory dir : dirs) 
+      if (dir.getParent() == null) return dir;
+    return null;
+  }
+  
   protected void print(String message) {
     System.out.println(" >> TestRun -- " + message);
   }
