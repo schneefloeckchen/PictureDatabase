@@ -1,0 +1,44 @@
+Only in .: diff.diff
+diff -r ./java/rzx/util/StringHelper.java /run/media/rene/m2Stick/JavaDevNB250/PictureDatabase/src/main/java/rzx/util/StringHelper.java
+5c5
+<  *
+---
+>  * 
+13,23d12
+<    *
+<    * @param string
+<    * @return
+<    */
+<   public static boolean isEmpty(String string) {
+<     return string == null ? true : string.isBlank();
+<   }
+< 
+<   /**
+<    * Trims a String to the defined length, if the length is below the defined,
+<    * only leading or trailing whitespace is removed
+25,27c14,15
+<    * @param in 
+<    * @param length Maax length of the result string
+<    * @return  The strimmed string
+---
+>    * @param string
+>    * @return 
+29,33c17,19
+<   public static String trimToLength(String in, int length) {
+<     String sTmp = in.length() < length ? in : in.substring(0, length - 1);
+<     return sTmp.trim();
+<   }
+< 
+---
+>     public static boolean isEmpty(String string) {
+>       return string == null ? true : string.isBlank();
+>     }
+diff -r ./resources/logging.properties /run/media/rene/m2Stick/JavaDevNB250/PictureDatabase/src/main/resources/logging.properties
+26,28c26,28
+< pictures.tools.PresentationPicturesProzessor.level=SEVERE
+< pictures.tools.MediumLoadProcessor.level=SEVERE
+< pictures.ui.ToolsUI.level=SEVERE
+---
+> pictures.tools.PresentationPicturesProzessor.level=FINE
+> pictures.tools.MediumLoadProcessor.level=FINE
+> pictures.ui.ToolsUI.level=FINE

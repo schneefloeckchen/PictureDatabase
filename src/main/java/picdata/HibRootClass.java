@@ -52,8 +52,6 @@ public abstract class HibRootClass implements Serializable {
   }
 
   protected String trimToLength(String in, int length) {
-//    String sTmp = in.length() < length ? in : in.substring(0, length - 1);
-//    return sTmp.trim();
     return StringHelper.trimToLength(in, length);
   }
 
@@ -87,12 +85,6 @@ public abstract class HibRootClass implements Serializable {
     }
   }
 
-  /*    public void update() {
-      try (Session session = PicHibernateUtil.getSessionFactory().openSession()) {
-        updateInSession(session);
-      }
-    }
-   */
   /**
    * saves the object to the database using an EntityManager.
    * If the object was not loaded from the database previously (id still not

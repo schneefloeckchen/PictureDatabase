@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import org.hibernate.HibernateException;
 import picdata.DigiPicture;
 import picdata.PicDirectory;
 import picdata.PictureMedium;
@@ -70,10 +69,6 @@ public class MediumLoadProcessor implements Runnable {
 //  }
 //
   public int process(File folder) {
-//    System.out.println(">> LOGGER IS "+m_logger.getName());
-//    m_logger.setLevel(Level.SEVERE);
-//    System.out.println(">> LOGGER LEVEL IS "+
-//            m_logger.getLevel().getName());
     if (m_medium == null)
       if (m_inTest)
         System.out.println("MediumLoadProcessor -- No medium loaded");
@@ -83,12 +78,6 @@ public class MediumLoadProcessor implements Runnable {
       m_statisticCollector.reset();
       m_statisticCollector.startExecution();
       executeOnDirectory(folder, null);                // during the import operation
-//      try {                    // try to close any more open session
-      ////RZ        Session openSession = PicHibernateUtil.getSessionFactory().getCurrentSession();
-////RZ        openSession.close();
-//      } catch (HibernateException ex) {
-//        m_logger.info("MediumLoadProcessor -- No open session found");
-//      }
       String numberOfRoots;
       try (EntityManager em = PicJPAUtil.getInstance().createEntityManager()) {
         Query query = em.createQuery(
@@ -155,7 +144,6 @@ public class MediumLoadProcessor implements Runnable {
         entityManager.getTransaction().begin();
         m_logger.log(Level.FINE, "Working on file: {0}", file.getName());
         if (file.isDirectory())
-//          executeOnDirectory(file, directory); //              directory.refresh();
           directoryList.add(file);        // Save for later processing, after closing this transaction
         else
           try {
@@ -236,21 +224,7 @@ public class MediumLoadProcessor implements Runnable {
           EntityManager em) {
     if (update) {
       m_statisticCollector.startDBSave();
-//      em.getTransaction().begin();
-//      if (em.contains(directory)) {
-//      m_logger.fine("Update directory part of transaction");
-//      PicDirectory dir = em.merge(directory);
       em.persist(directory);
-//      }
-//      else {
-//        m_logger.fine("Updating after merge");
-//        System.out.println(">>  Updating after merge");
-//        Object o = em.merge(directory);
-//        em.persist(o);
-//        directory = (PicDirectory)o;
-//      }
-//      em.getTransaction().commit();
-//      m_statisticCollector.endDBsave();
     }
   }
 
@@ -279,19 +253,6 @@ public class MediumLoadProcessor implements Runnable {
   public void suspendThreadExecution() {
     if (m_theProcessor != null)
       m_suspended = true;
-//      if (m_theProcessor.isAlive())
-//          synchronized (m_theProcessor) {
-//        try {
-//          log("Sending wait to the processor");
-//          m_theProcessor.wait();
-
-  
-
-  ////                m_theProcessor.suspend();
-//        } catch (InterruptedException ex) {
-//          log("InterruptedException exception caught - continue w. execution");
-//        }
-//      }
   }
 
   public void resumeThreadExecution() {
@@ -301,12 +262,6 @@ public class MediumLoadProcessor implements Runnable {
         notify();
       }
     }
-//      if (m_theProcessor.isAlive())
-//        synchronized (m_theProcessor) {
-//        m_theProcessor.notify();
-//      }
-//
-//                m_theProcessor.resume();
   }
 
 // implementation of the runnable interface

@@ -312,6 +312,16 @@ public class DigiPicture extends PicDataBaseClass {
     m_searcher.setEntityManager(em);
   }
   
+  /**
+   * Loads the image from the file. Obsolete, replaced by the PictureFactory. However, stiull used in 2 minor dialogs.
+   * @ToDo rewrite the 2 dialogs, which still use this methods and remove the method from the class.
+   * @param file
+   * @throws JpegProcessingException
+   * @throws IOException
+   * @throws SQLException
+   * @throws TiffProcessingException
+   * @throws PngProcessingException 
+   */
   public void load(File file) throws JpegProcessingException, IOException, SQLException, TiffProcessingException, PngProcessingException {
     if (m_searcher == null)
       m_searcher = new Searcher();

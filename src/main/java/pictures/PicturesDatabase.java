@@ -114,9 +114,6 @@ bugfixes:
 
 Globale ToDos:
 @todo Test for validate images, further tests and amend Java Doc.
-@todo PRIO -- create index to speed up loading of folder content in maintain in
-images Dialog. (1) Index on DIRE_ID in the PIC_DIR_MAP for DEV and PROD, not
-really an improvement.
 @todo Export Image from database, from Maintain Image dialog
 @todo List to collect information about images found, for later loading from the media
 @todo GLOBAL -- remove deprecated methods and classes (multithreading framework in ZxLogpanel

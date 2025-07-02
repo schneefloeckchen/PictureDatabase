@@ -6,8 +6,9 @@ SOURCE="/home/rene/fastDrive"
 TARGET="/home/rene/sicherungsSpeicher"	
 tar -czf $TARGET/rene/PictureDatabase_$(date "+%y%m%d-%H%M").tar \
 nbproject/* \
+skripte/* \
 src/* \
-*.xml *.sh *.html 
+*.xml *.sh *.html *.txt
 if test $? -ne 0
 then
   echo $(date "+%d.%m.%y - %H:%M") -- ERROR - tar reports error
